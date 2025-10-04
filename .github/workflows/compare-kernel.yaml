@@ -1,0 +1,39 @@
+name: Compare Ubuntu kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_url:
+        description: 'Git URL for kernel code'
+        required: true
+        type: string
+      branch:
+        description: 'Git branch'
+        required: true
+        type: string
+      kernel_version:
+        description: 'Base Ubuntu kernel version'
+        required: true
+        type: string
+
+jobs:
+  compare_kernel:
+    name: Run compare-ubuntu-kernel
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run compare-ubuntu-kernel
+        run: |
+          echo "Running tests..."
+          ./compare-ubuntu-kernel.sh ${{ github.event.inputs.git_url}} ${{ github.event.inputs.branch}} ${{ github.event.inputs.kernel_version}} | tee kernel-diff.txt
+      - name: upload report
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-diff.txt
+          path: |
+            kernel-diff.txt
