@@ -15,7 +15,7 @@ if [ "$#" -ne 3 ]; then
 fi
 
 GIT_URL="$1"
-BRANCH="$3"
+BRANCH="$2"
 VERSION="$3"
 
 git clone -b $BRANCH --bare --filter=blob:none --single-branch $GIT_URL work_dir
