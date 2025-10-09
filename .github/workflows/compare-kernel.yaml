@@ -17,7 +17,7 @@ on:
         type: string
       artifact_name:
         description: 'Base Ubuntu kernel version'
-        required: no
+        required: false
         type: string
         default: kernel-diff
 
