@@ -15,6 +15,11 @@ on:
         description: 'Base Ubuntu kernel version'
         required: true
         type: string
+      artifact_name:
+        description: 'Base Ubuntu kernel version'
+        required: no
+        type: string
+        default: kernel-diff
 
 jobs:
   compare_kernel:
@@ -34,6 +39,6 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-diff.txt
+          name: ${{ github.event.inputs.artifact_name }}
           path: |
             kernel-diff.txt
