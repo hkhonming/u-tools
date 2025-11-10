@@ -1,0 +1,8 @@
+[core]
+	repositoryformatversion = 1
+	filemode = true
+	bare = true
+[remote "origin"]
+	url = /tmp/demo-ubuntu-kernel
+	promisor = true
+	partialclonefilter = blob:none
