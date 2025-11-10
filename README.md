@@ -117,6 +117,11 @@ Results are available as workflow artifacts and displayed in the workflow output
 
 ## Example Configurations
 
+The repository includes sample configuration files:
+
+- `sample-config.json`: Basic example with 2 Raspberry Pi kernel configurations
+- `example-configs.json`: Extended example with multiple kernel types (Raspberry Pi, Intel IoT, NVIDIA Tegra)
+
 ### Raspberry Pi Kernels
 ```json
 [
@@ -134,6 +139,9 @@ Results are available as workflow artifacts and displayed in the workflow output
   }
 ]
 ```
+
+### Multiple Kernel Types
+See `example-configs.json` for a configuration that compares Raspberry Pi, Intel IoT, and NVIDIA Tegra kernels side-by-side.
 
 ## License
 
