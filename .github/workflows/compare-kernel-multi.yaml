@@ -20,6 +20,8 @@ jobs:
   compare_kernels:
     name: Compare Multiple Kernels
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout Repository
