@@ -121,39 +121,44 @@ Results are available in multiple ways:
 - **GitHub Pages** (if enabled): Accessible at `https://<username>.github.io/<repo>/`
 - **Workflow output**: View directly in the Actions run logs
 
-**Note:** The default `sample-config.json` now includes 4 kernel configurations:
-- Raspberry Pi Noble 6.8
-- Raspberry Pi Oracular 6.11
-- Intel IoT Noble 6.8
-- NVIDIA Tegra Noble 6.8
+**Note:** The default `sample-config.json` includes 25 kernel configurations covering multiple kernel types:
+- Raspberry Pi kernels (3 configs: focal, jammy, noble)
+- RISC-V kernels (2 configs: noble, questing)
+- Intel IoT kernels (1 config: jammy)
+- Bluefield kernels (3 configs: focal, jammy, noble)
+- NVIDIA/NVIDIA Tegra kernels (6 configs: jammy, noble with various versions)
+- Xilinx kernels (3 configs: focal, jammy, noble)
+- MediaTek kernels (1 config: jammy)
+- Qualcomm kernels (1 config: noble)
+- Cloud kernels: AWS, Oracle, GCP, Azure, IBM (5 configs: all noble)
 
-## Example Configurations
+## Example Configuration
 
-The repository includes sample configuration files:
+The repository includes `sample-config.json` which demonstrates a comprehensive comparison with various kernel types:
 
-- `sample-config.json`: Basic example with 2 Raspberry Pi kernel configurations
-- `example-configs.json`: Extended example with multiple kernel types (Raspberry Pi, Intel IoT, NVIDIA Tegra)
-
-### Raspberry Pi Kernels
 ```json
 [
   {
-    "name": "Raspberry Pi 5 Noble (6.8)",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/focal",
     "branch": "master-next",
-    "kernel_version": "6.8.0-1017.18"
+    "kernel_version": "5.4",
+    "name": "linux-raspi-focal"
   },
   {
-    "name": "Raspberry Pi 5 Oracular (6.11)",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/oracular",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/jammy",
     "branch": "master-next",
-    "kernel_version": "6.11.0-1009.10"
+    "kernel_version": "5.15",
+    "name": "linux-raspi-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-raspi-noble"
   }
+  // ... and 22 more kernel configurations
 ]
 ```
-
-### Multiple Kernel Types
-See `example-configs.json` for a configuration that compares Raspberry Pi, Intel IoT, and NVIDIA Tegra kernels side-by-side.
 
 ## License
 
