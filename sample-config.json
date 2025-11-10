@@ -1,26 +1,152 @@
 [
   {
-    "name": "Raspberry Pi Noble 6.8",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/focal",
+    "branch": "master-next",
+    "kernel_version": "5.4",
+    "name": "linux-raspi-focal"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/jammy",
+    "branch": "master-next",
+    "kernel_version": "5.15",
+    "name": "linux-raspi-jammy"
+  },
+  {
     "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
     "branch": "master-next",
-    "kernel_version": "6.8.0-1017.18"
+    "kernel_version": "6.8",
+    "name": "linux-raspi-noble"
   },
   {
-    "name": "Raspberry Pi Oracular 6.11",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/oracular",
-    "branch": "master-next",
-    "kernel_version": "6.11.0-1009.10"
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-riscv/+git/noble",
+    "branch": "master",
+    "kernel_version": "6.8",
+    "name": "linux-riscv-noble"
   },
   {
-    "name": "Intel IoT Noble 6.8",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-intel-iotg/+git/noble",
-    "branch": "master-next",
-    "kernel_version": "6.8.0-1015.22"
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-riscv/+git/questing",
+    "branch": "master",
+    "kernel_version": "6.17",
+    "name": "linux-riscv-questing"
   },
   {
-    "name": "NVIDIA Tegra Noble 6.8",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-nvidia-tegra/+git/noble",
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-intel-iotg/+git/jammy",
+    "branch": "master",
+    "kernel_version": "5.15",
+    "name": "linux-intel-iotg-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-bluefield/+git/focal",
     "branch": "master-next",
-    "kernel_version": "6.8.0-1012.13"
+    "kernel_version": "5.4",
+    "name": "linux-bluefield-focal"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-bluefield/+git/jammy",
+    "branch": "master-next",
+    "kernel_version": "5.15",
+    "name": "linux-bluefield-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-bluefield-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia-tegra/+git/noble",
+    "branch": "main-next",
+    "kernel_version": "6.8",
+    "name": "linux-nvidia-tegra-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/jammy",
+    "branch": "main-next",
+    "kernel_version": "5.15",
+    "name": "linux-nvidia-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble",
+    "branch": "main-next",
+    "kernel_version": "6.8",
+    "name": "linux-nvidia-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble",
+    "branch": "nvidia-6.11-next",
+    "kernel_version": "6.11",
+    "name": "linux-nvidia-6.11-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble",
+    "branch": "nvidia-6.14-next",
+    "kernel_version": "6.14",
+    "name": "linux-nvidia-6.14-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble",
+    "branch": "nvidia-6.17-next",
+    "kernel_version": "6.17",
+    "name": "linux-nvidia-6.17-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx-zynqmp/+git/focal",
+    "branch": "master-next",
+    "kernel_version": "5.4",
+    "name": "linux-xilinx-zynqmp-focal"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx-zynqmp/+git/jammy",
+    "branch": "master-next",
+    "kernel_version": "5.15",
+    "name": "linux-xilinx-zynqmp-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-xilinx-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-mtk/+git/jammy",
+    "branch": "master-next",
+    "kernel_version": "5.15",
+    "name": "linux-mtk-jammy"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-qcom/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-qcom-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-aws/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-aws-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-oracle/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-oracle-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-gcp/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-gcp-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-azure/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-azure-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-ibm/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8",
+    "name": "linux-ibm-noble"
   }
 ]
