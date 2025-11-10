@@ -15,6 +15,16 @@ on:
         description: 'Base Ubuntu kernel version'
         required: true
         type: string
+      format:
+        description: 'Output format (text, json, csv, markdown)'
+        required: false
+        type: choice
+        options:
+          - text
+          - json
+          - csv
+          - markdown
+        default: text
       artifact_name:
         description: 'Output artifact name'
         required: false
@@ -33,8 +43,8 @@ jobs:
 
       - name: Run compare-ubuntu-kernel
         run: |
-          echo "Running tests..."
-          ./compare-ubuntu-kernel.sh ${{ github.event.inputs.git_url}} ${{ github.event.inputs.branch}} ${{ github.event.inputs.kernel_version}} | tee kernel-diff.txt
+          echo "Running compare-ubuntu-kernel.sh with format: ${{ github.event.inputs.format }}"
+          ./compare-ubuntu-kernel.sh -f ${{ github.event.inputs.format }} ${{ github.event.inputs.git_url}} ${{ github.event.inputs.branch}} ${{ github.event.inputs.kernel_version}} | tee kernel-diff.txt
       - name: upload report
         id: upload
         uses: actions/upload-artifact@v4
