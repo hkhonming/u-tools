@@ -1,0 +1,312 @@
+name: Compare Multiple Ubuntu Kernels
+
+on:
+  workflow_dispatch:
+    inputs:
+      config_url:
+        description: 'URL to config.tgz or config.json file (optional - uses sample-config.json if not provided)'
+        required: false
+        type: string
+      output_format:
+        description: 'Output format for comparison table'
+        required: false
+        type: choice
+        options:
+          - markdown
+          - csv
+        default: markdown
+      publish_to_pages:
+        description: 'Publish results to GitHub Pages'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  compare_kernels:
+    name: Compare Multiple Kernels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download and Extract Config
+        id: config
+        run: |
+          CONFIG_FILE="sample-config.json"
+          
+          if [ -n "${{ github.event.inputs.config_url }}" ]; then
+            echo "Downloading config from: ${{ github.event.inputs.config_url }}"
+            
+            # Check if URL ends with .tgz or .tar.gz
+            if [[ "${{ github.event.inputs.config_url }}" =~ \.(tgz|tar\.gz)$ ]]; then
+              wget -O config.tgz "${{ github.event.inputs.config_url }}"
+              tar -xzf config.tgz
+              # Find the JSON config file in extracted content
+              CONFIG_FILE=$(find . -maxdepth 2 -name "*.json" -type f | head -n 1)
+              if [ -z "$CONFIG_FILE" ]; then
+                echo "Error: No JSON config file found in archive"
+                exit 1
+              fi
+            else
+              # Assume it's a direct JSON file
+              wget -O config.json "${{ github.event.inputs.config_url }}"
+              CONFIG_FILE="config.json"
+            fi
+          fi
+          
+          echo "Using config file: $CONFIG_FILE"
+          echo "config_file=$CONFIG_FILE" >> $GITHUB_OUTPUT
+          
+          # Validate JSON
+          if ! jq empty "$CONFIG_FILE" 2>/dev/null; then
+            echo "Error: Invalid JSON in config file"
+            exit 1
+          fi
+          
+          # Count configurations
+          CONFIG_COUNT=$(jq 'length' "$CONFIG_FILE")
+          echo "Found $CONFIG_COUNT kernel configurations"
+          echo "config_count=$CONFIG_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Run Comparisons
+        id: compare
+        run: |
+          CONFIG_FILE="${{ steps.config.outputs.config_file }}"
+          FORMAT="${{ github.event.inputs.output_format }}"
+          CONFIG_COUNT="${{ steps.config.outputs.config_count }}"
+          
+          echo "Running comparisons for $CONFIG_COUNT configurations..."
+          
+          # Create output directory
+          mkdir -p results
+          
+          # Run comparison for each config
+          for i in $(seq 0 $((CONFIG_COUNT - 1))); do
+            echo "Processing configuration $((i + 1))/$CONFIG_COUNT"
+            
+            NAME=$(jq -r ".[$i].name" "$CONFIG_FILE")
+            GIT_URL=$(jq -r ".[$i].git_url" "$CONFIG_FILE")
+            BRANCH=$(jq -r ".[$i].branch" "$CONFIG_FILE")
+            VERSION=$(jq -r ".[$i].kernel_version" "$CONFIG_FILE")
+            
+            echo "  Name: $NAME"
+            echo "  Git URL: $GIT_URL"
+            echo "  Branch: $BRANCH"
+            echo "  Version: $VERSION"
+            
+            # Run comparison and save to individual file
+            ./compare-ubuntu-kernel.sh -f csv "$GIT_URL" "$BRANCH" "$VERSION" > "results/result_${i}.csv" 2>&1 || {
+              echo "Warning: Comparison failed for configuration: $NAME"
+              echo "$NAME,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR" > "results/result_${i}.csv"
+            }
+            
+            # Add name column to CSV
+            tail -n 1 "results/result_${i}.csv" | awk -v name="$NAME" 'BEGIN{FS=","; OFS=","} {print name,$0}' > "results/result_${i}_named.csv"
+            
+            # Clean up work directory
+            rm -rf work_dir
+          done
+
+      - name: Combine Results
+        run: |
+          FORMAT="${{ github.event.inputs.output_format }}"
+          GENERATION_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          echo "Combining results into $FORMAT format..."
+          
+          if [ "$FORMAT" = "markdown" ]; then
+            # Create markdown table
+            cat > combined-results.md << EOF
+          # Ubuntu Kernel Comparison Report
+          
+          This report compares multiple Ubuntu kernel derivatives against their base Ubuntu versions.
+          
+          **Generated on:** $GENERATION_DATE
+          
+          ## Comparison Table
+          
+          | Configuration | Git URL | Branch | Base Version | Base Commit | Commits on Top | Files Changed | Insertions | Deletions |
+          |---------------|---------|--------|--------------|-------------|----------------|---------------|------------|-----------|
+          EOF
+            
+            # Process each result
+            for result_file in results/result_*_named.csv; do
+              if [ -f "$result_file" ]; then
+                # Convert CSV to markdown table row
+                awk 'BEGIN{FS=","; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7, $8, $9 " |"}' "$result_file" >> combined-results.md
+              fi
+            done
+            
+            echo "" >> combined-results.md
+            echo "---" >> combined-results.md
+            echo "*Report generated on $GENERATION_DATE*" >> combined-results.md
+            
+            cat combined-results.md
+            
+          else
+            # Create CSV output with header comment
+            cat > combined-results.csv << EOF
+          # Ubuntu Kernel Comparison Report - Generated on $GENERATION_DATE
+          configuration,git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions
+          EOF
+            
+            # Concatenate all named results
+            for result_file in results/result_*_named.csv; do
+              if [ -f "$result_file" ]; then
+                cat "$result_file" >> combined-results.csv
+              fi
+            done
+            
+            cat combined-results.csv
+          fi
+
+      - name: Upload Combined Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-comparison-results
+          path: |
+            combined-results.*
+            results/
+          retention-days: 30
+
+      - name: Publish to GitHub Pages
+        if: ${{ github.event.inputs.publish_to_pages == 'true' }}
+        run: |
+          # Create a simple HTML page for GitHub Pages
+          mkdir -p gh-pages
+          
+          # Copy markdown as index
+          if [ -f combined-results.md ]; then
+            # Convert markdown to HTML with basic styling
+            cat > gh-pages/index.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ubuntu Kernel Comparison Report</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      line-height: 1.6;
+                      color: #333;
+                  }
+                  h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                  h2 { color: #34495e; margin-top: 30px; }
+                  table {
+                      width: 100%;
+                      border-collapse: collapse;
+                      margin: 20px 0;
+                      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+                  }
+                  th {
+                      background-color: #3498db;
+                      color: white;
+                      padding: 12px;
+                      text-align: left;
+                      font-weight: 600;
+                  }
+                  td {
+                      padding: 10px 12px;
+                      border-bottom: 1px solid #ddd;
+                  }
+                  tr:hover { background-color: #f5f5f5; }
+                  .footer {
+                      margin-top: 30px;
+                      padding-top: 20px;
+                      border-top: 1px solid #ddd;
+                      color: #7f8c8d;
+                      font-size: 0.9em;
+                  }
+              </style>
+          </head>
+          <body>
+          HTMLEOF
+            
+            # Convert markdown to HTML table
+            awk '
+              BEGIN { in_table = 0; print "<h1>Ubuntu Kernel Comparison Report</h1>" }
+              /^# / { next }
+              /^\*\*Generated on:\*\*/ { print "<p><strong>Generated on:</strong> " substr($0, 21) "</p>"; next }
+              /^## / { print "<h2>" substr($0, 4) "</h2>"; next }
+              /^\| Configuration/ { 
+                in_table = 1
+                print "<table>"
+                print "<thead><tr>"
+                gsub(/^\| /, "")
+                gsub(/ \|$/, "")
+                split($0, headers, " \\| ")
+                for (i in headers) print "<th>" headers[i] "</th>"
+                print "</tr></thead><tbody>"
+                next
+              }
+              /^\|---/ { next }
+              /^\| / && in_table {
+                print "<tr>"
+                gsub(/^\| /, "")
+                gsub(/ \|$/, "")
+                split($0, cells, " \\| ")
+                for (i in cells) print "<td>" cells[i] "</td>"
+                print "</tr>"
+                next
+              }
+              /^---$/ {
+                if (in_table) { print "</tbody></table>"; in_table = 0 }
+                next
+              }
+              /^\*Report generated/ {
+                print "<div class=\"footer\">" $0 "</div>"
+                next
+              }
+              { if (!in_table && !/^$/) print "<p>" $0 "</p>" }
+              END { 
+                if (in_table) print "</tbody></table>"
+                print "</body></html>"
+              }
+            ' combined-results.md >> gh-pages/index.html
+            
+            echo "Created GitHub Pages HTML"
+          fi
+          
+          # Also copy CSV if available
+          if [ -f combined-results.csv ]; then
+            cp combined-results.csv gh-pages/
+          fi
+
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event.inputs.publish_to_pages == 'true' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages
+          publish_branch: gh-pages
+          force_orphan: true
+
+      - name: Comment Results Summary
+        run: |
+          FORMAT="${{ github.event.inputs.output_format }}"
+          
+          if [ "$FORMAT" = "markdown" ]; then
+            echo "## Results Summary"
+            cat combined-results.md
+          else
+            echo "## Results Summary (CSV)"
+            echo "\`\`\`"
+            cat combined-results.csv
+            echo "\`\`\`"
+          fi
+          
+          # Add GitHub Pages link if published
+          if [ "${{ github.event.inputs.publish_to_pages }}" = "true" ]; then
+            echo ""
+            echo "---"
+            echo "📊 **View Report Online:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          fi

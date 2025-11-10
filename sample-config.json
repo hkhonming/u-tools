@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Raspberry Pi Noble 6.8",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8.0-1017.18"
+  },
+  {
+    "name": "Raspberry Pi Oracular 6.11",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/oracular",
+    "branch": "master-next",
+    "kernel_version": "6.11.0-1009.10"
+  },
+  {
+    "name": "Intel IoT Noble 6.8",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-intel-iotg/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8.0-1015.22"
+  },
+  {
+    "name": "NVIDIA Tegra Noble 6.8",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-nvidia-tegra/+git/noble",
+    "branch": "master-next",
+    "kernel_version": "6.8.0-1012.13"
+  }
+]
