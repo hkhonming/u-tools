@@ -1,0 +1,174 @@
+name: Compare Multiple Ubuntu Kernels
+
+on:
+  workflow_dispatch:
+    inputs:
+      config_url:
+        description: 'URL to config.tgz or config.json file (optional - uses sample-config.json if not provided)'
+        required: false
+        type: string
+      output_format:
+        description: 'Output format for comparison table'
+        required: false
+        type: choice
+        options:
+          - markdown
+          - csv
+        default: markdown
+
+jobs:
+  compare_kernels:
+    name: Compare Multiple Kernels
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download and Extract Config
+        id: config
+        run: |
+          CONFIG_FILE="sample-config.json"
+          
+          if [ -n "${{ github.event.inputs.config_url }}" ]; then
+            echo "Downloading config from: ${{ github.event.inputs.config_url }}"
+            
+            # Check if URL ends with .tgz or .tar.gz
+            if [[ "${{ github.event.inputs.config_url }}" =~ \.(tgz|tar\.gz)$ ]]; then
+              wget -O config.tgz "${{ github.event.inputs.config_url }}"
+              tar -xzf config.tgz
+              # Find the JSON config file in extracted content
+              CONFIG_FILE=$(find . -maxdepth 2 -name "*.json" -type f | head -n 1)
+              if [ -z "$CONFIG_FILE" ]; then
+                echo "Error: No JSON config file found in archive"
+                exit 1
+              fi
+            else
+              # Assume it's a direct JSON file
+              wget -O config.json "${{ github.event.inputs.config_url }}"
+              CONFIG_FILE="config.json"
+            fi
+          fi
+          
+          echo "Using config file: $CONFIG_FILE"
+          echo "config_file=$CONFIG_FILE" >> $GITHUB_OUTPUT
+          
+          # Validate JSON
+          if ! jq empty "$CONFIG_FILE" 2>/dev/null; then
+            echo "Error: Invalid JSON in config file"
+            exit 1
+          fi
+          
+          # Count configurations
+          CONFIG_COUNT=$(jq 'length' "$CONFIG_FILE")
+          echo "Found $CONFIG_COUNT kernel configurations"
+          echo "config_count=$CONFIG_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Run Comparisons
+        id: compare
+        run: |
+          CONFIG_FILE="${{ steps.config.outputs.config_file }}"
+          FORMAT="${{ github.event.inputs.output_format }}"
+          CONFIG_COUNT="${{ steps.config.outputs.config_count }}"
+          
+          echo "Running comparisons for $CONFIG_COUNT configurations..."
+          
+          # Create output directory
+          mkdir -p results
+          
+          # Run comparison for each config
+          for i in $(seq 0 $((CONFIG_COUNT - 1))); do
+            echo "Processing configuration $((i + 1))/$CONFIG_COUNT"
+            
+            NAME=$(jq -r ".[$i].name" "$CONFIG_FILE")
+            GIT_URL=$(jq -r ".[$i].git_url" "$CONFIG_FILE")
+            BRANCH=$(jq -r ".[$i].branch" "$CONFIG_FILE")
+            VERSION=$(jq -r ".[$i].kernel_version" "$CONFIG_FILE")
+            
+            echo "  Name: $NAME"
+            echo "  Git URL: $GIT_URL"
+            echo "  Branch: $BRANCH"
+            echo "  Version: $VERSION"
+            
+            # Run comparison and save to individual file
+            ./compare-ubuntu-kernel.sh -f csv "$GIT_URL" "$BRANCH" "$VERSION" > "results/result_${i}.csv" 2>&1 || {
+              echo "Warning: Comparison failed for configuration: $NAME"
+              echo "$NAME,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR" > "results/result_${i}.csv"
+            }
+            
+            # Add name column to CSV
+            tail -n 1 "results/result_${i}.csv" | awk -v name="$NAME" 'BEGIN{FS=","; OFS=","} {print name,$0}' > "results/result_${i}_named.csv"
+            
+            # Clean up work directory
+            rm -rf work_dir
+          done
+
+      - name: Combine Results
+        run: |
+          FORMAT="${{ github.event.inputs.output_format }}"
+          
+          echo "Combining results into $FORMAT format..."
+          
+          if [ "$FORMAT" = "markdown" ]; then
+            # Create markdown table
+            cat > combined-results.md << 'EOF'
+          # Ubuntu Kernel Comparison Report
+          
+          This report compares multiple Ubuntu kernel derivatives against their base Ubuntu versions.
+          
+          ## Comparison Table
+          
+          | Configuration | Git URL | Branch | Base Version | Base Commit | Commits on Top | Files Changed | Insertions | Deletions |
+          |---------------|---------|--------|--------------|-------------|----------------|---------------|------------|-----------|
+          EOF
+            
+            # Process each result
+            for result_file in results/result_*_named.csv; do
+              if [ -f "$result_file" ]; then
+                # Convert CSV to markdown table row
+                awk 'BEGIN{FS=","; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7, $8, $9 " |"}' "$result_file" >> combined-results.md
+              fi
+            done
+            
+            echo "" >> combined-results.md
+            echo "---" >> combined-results.md
+            echo "*Generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> combined-results.md
+            
+            cat combined-results.md
+            
+          else
+            # Create CSV output
+            echo "configuration,git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions" > combined-results.csv
+            
+            # Concatenate all named results
+            for result_file in results/result_*_named.csv; do
+              if [ -f "$result_file" ]; then
+                cat "$result_file" >> combined-results.csv
+              fi
+            done
+            
+            cat combined-results.csv
+          fi
+
+      - name: Upload Combined Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-comparison-results
+          path: |
+            combined-results.*
+            results/
+          retention-days: 30
+
+      - name: Comment Results Summary
+        run: |
+          FORMAT="${{ github.event.inputs.output_format }}"
+          
+          if [ "$FORMAT" = "markdown" ]; then
+            echo "## Results Summary"
+            cat combined-results.md
+          else
+            echo "## Results Summary (CSV)"
+            echo "\`\`\`"
+            cat combined-results.csv
+            echo "\`\`\`"
+          fi
