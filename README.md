@@ -132,16 +132,9 @@ Results are available in multiple ways:
 - Qualcomm kernels (1 config: noble)
 - Cloud kernels: AWS, Oracle, GCP, Azure, IBM (5 configs: all noble)
 
-## Example Configurations
+## Example Configuration
 
-The repository includes sample configuration files:
-
-- `sample-config.json`: Comprehensive example with 25 kernel configurations covering multiple kernel types (Raspberry Pi, RISC-V, Intel IoT, Bluefield, NVIDIA/NVIDIA Tegra, Xilinx, MediaTek, Qualcomm, and cloud providers)
-- `example-configs.json`: Simplified example with 4 kernel configurations (Raspberry Pi, Intel IoT, NVIDIA Tegra)
-
-### Sample Configuration Examples
-
-The `sample-config.json` file demonstrates a comprehensive comparison with various kernel types:
+The repository includes `sample-config.json` which demonstrates a comprehensive comparison with various kernel types:
 
 ```json
 [
@@ -164,28 +157,6 @@ The `sample-config.json` file demonstrates a comprehensive comparison with vario
     "name": "linux-raspi-noble"
   }
   // ... and 22 more kernel configurations
-]
-```
-
-### Simplified Configuration
-
-For a smaller, more focused comparison, see `example-configs.json`:
-
-```json
-[
-  {
-    "name": "Raspberry Pi Noble 6.8",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
-    "branch": "master-next",
-    "kernel_version": "6.8.0-1017.18"
-  },
-  {
-    "name": "Raspberry Pi Oracular 6.11",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/oracular",
-    "branch": "master-next",
-    "kernel_version": "6.11.0-1009.10"
-  }
-  // ... and 2 more configurations
 ]
 ```
 
