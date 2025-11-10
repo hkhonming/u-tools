@@ -15,13 +15,20 @@ on:
           - markdown
           - csv
         default: markdown
+      publish_to_pages:
+        description: 'Publish results to GitHub Pages'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   compare_kernels:
     name: Compare Multiple Kernels
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout Repository
@@ -108,15 +115,18 @@ jobs:
       - name: Combine Results
         run: |
           FORMAT="${{ github.event.inputs.output_format }}"
+          GENERATION_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
           
           echo "Combining results into $FORMAT format..."
           
           if [ "$FORMAT" = "markdown" ]; then
             # Create markdown table
-            cat > combined-results.md << 'EOF'
+            cat > combined-results.md << EOF
           # Ubuntu Kernel Comparison Report
           
           This report compares multiple Ubuntu kernel derivatives against their base Ubuntu versions.
+          
+          **Generated on:** $GENERATION_DATE
           
           ## Comparison Table
           
@@ -134,13 +144,16 @@ jobs:
             
             echo "" >> combined-results.md
             echo "---" >> combined-results.md
-            echo "*Generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> combined-results.md
+            echo "*Report generated on $GENERATION_DATE*" >> combined-results.md
             
             cat combined-results.md
             
           else
-            # Create CSV output
-            echo "configuration,git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions" > combined-results.csv
+            # Create CSV output with header comment
+            cat > combined-results.csv << EOF
+          # Ubuntu Kernel Comparison Report - Generated on $GENERATION_DATE
+          configuration,git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions
+          EOF
             
             # Concatenate all named results
             for result_file in results/result_*_named.csv; do
@@ -161,6 +174,122 @@ jobs:
             results/
           retention-days: 30
 
+      - name: Publish to GitHub Pages
+        if: ${{ github.event.inputs.publish_to_pages == 'true' }}
+        run: |
+          # Create a simple HTML page for GitHub Pages
+          mkdir -p gh-pages
+          
+          # Copy markdown as index
+          if [ -f combined-results.md ]; then
+            # Convert markdown to HTML with basic styling
+            cat > gh-pages/index.html << 'HTMLEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ubuntu Kernel Comparison Report</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      line-height: 1.6;
+                      color: #333;
+                  }
+                  h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                  h2 { color: #34495e; margin-top: 30px; }
+                  table {
+                      width: 100%;
+                      border-collapse: collapse;
+                      margin: 20px 0;
+                      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+                  }
+                  th {
+                      background-color: #3498db;
+                      color: white;
+                      padding: 12px;
+                      text-align: left;
+                      font-weight: 600;
+                  }
+                  td {
+                      padding: 10px 12px;
+                      border-bottom: 1px solid #ddd;
+                  }
+                  tr:hover { background-color: #f5f5f5; }
+                  .footer {
+                      margin-top: 30px;
+                      padding-top: 20px;
+                      border-top: 1px solid #ddd;
+                      color: #7f8c8d;
+                      font-size: 0.9em;
+                  }
+              </style>
+          </head>
+          <body>
+          HTMLEOF
+            
+            # Convert markdown to HTML table
+            awk '
+              BEGIN { in_table = 0; print "<h1>Ubuntu Kernel Comparison Report</h1>" }
+              /^# / { next }
+              /^\*\*Generated on:\*\*/ { print "<p><strong>Generated on:</strong> " substr($0, 21) "</p>"; next }
+              /^## / { print "<h2>" substr($0, 4) "</h2>"; next }
+              /^\| Configuration/ { 
+                in_table = 1
+                print "<table>"
+                print "<thead><tr>"
+                gsub(/^\| /, "")
+                gsub(/ \|$/, "")
+                split($0, headers, " \\| ")
+                for (i in headers) print "<th>" headers[i] "</th>"
+                print "</tr></thead><tbody>"
+                next
+              }
+              /^\|---/ { next }
+              /^\| / && in_table {
+                print "<tr>"
+                gsub(/^\| /, "")
+                gsub(/ \|$/, "")
+                split($0, cells, " \\| ")
+                for (i in cells) print "<td>" cells[i] "</td>"
+                print "</tr>"
+                next
+              }
+              /^---$/ {
+                if (in_table) { print "</tbody></table>"; in_table = 0 }
+                next
+              }
+              /^\*Report generated/ {
+                print "<div class=\"footer\">" $0 "</div>"
+                next
+              }
+              { if (!in_table && !/^$/) print "<p>" $0 "</p>" }
+              END { 
+                if (in_table) print "</tbody></table>"
+                print "</body></html>"
+              }
+            ' combined-results.md >> gh-pages/index.html
+            
+            echo "Created GitHub Pages HTML"
+          fi
+          
+          # Also copy CSV if available
+          if [ -f combined-results.csv ]; then
+            cp combined-results.csv gh-pages/
+          fi
+
+      - name: Deploy to GitHub Pages
+        if: ${{ github.event.inputs.publish_to_pages == 'true' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages
+          publish_branch: gh-pages
+          force_orphan: true
+
       - name: Comment Results Summary
         run: |
           FORMAT="${{ github.event.inputs.output_format }}"
@@ -173,4 +302,11 @@ jobs:
             echo "\`\`\`"
             cat combined-results.csv
             echo "\`\`\`"
+          fi
+          
+          # Add GitHub Pages link if published
+          if [ "${{ github.event.inputs.publish_to_pages }}" = "true" ]; then
+            echo ""
+            echo "---"
+            echo "📊 **View Report Online:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
           fi

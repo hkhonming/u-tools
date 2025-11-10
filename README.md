@@ -53,6 +53,7 @@ Compare multiple Ubuntu kernel derivatives in a single workflow run and generate
 **Inputs:**
 - `config_url`: URL to config.tgz or config.json file (optional - uses sample-config.json if not provided)
 - `output_format`: Output format for comparison table - markdown or csv (optional, default: markdown)
+- `publish_to_pages`: Publish results to GitHub Pages for easy web access (optional, default: false)
 
 **Config File Format:**
 
@@ -61,16 +62,16 @@ The config file should be a JSON array containing kernel configuration objects:
 ```json
 [
   {
-    "name": "Raspberry Pi 5 6.8",
+    "name": "Raspberry Pi Noble 6.8",
     "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble",
     "branch": "master-next",
     "kernel_version": "6.8.0-1017.18"
   },
   {
-    "name": "Raspberry Pi 5 6.11",
-    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/oracular",
+    "name": "Intel IoT Noble 6.8",
+    "git_url": "https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-intel-iotg/+git/noble",
     "branch": "master-next",
-    "kernel_version": "6.11.0-1009.10"
+    "kernel_version": "6.8.0-1015.22"
   }
 ]
 ```
@@ -81,8 +82,9 @@ The config file should be a JSON array containing kernel configuration objects:
    - Go to Actions tab in GitHub
    - Select "Compare Multiple Ubuntu Kernels"
    - Click "Run workflow"
-   - Leave config_url empty to use `sample-config.json`
+   - Leave config_url empty to use `sample-config.json` (includes 4 kernel configs by default)
    - Select output format (markdown or csv)
+   - Optionally enable "Publish to GitHub Pages" to make results accessible via web
    - Click "Run workflow"
 
 2. **With custom config URL:**
@@ -112,8 +114,18 @@ The workflow generates a combined comparison table showing:
 - Files changed
 - Lines inserted
 - Lines deleted
+- **Generation timestamp** (date and time the report was created)
 
-Results are available as workflow artifacts and displayed in the workflow output.
+Results are available in multiple ways:
+- **Workflow artifacts**: Download from Actions tab (30-day retention)
+- **GitHub Pages** (if enabled): Accessible at `https://<username>.github.io/<repo>/`
+- **Workflow output**: View directly in the Actions run logs
+
+**Note:** The default `sample-config.json` now includes 4 kernel configurations:
+- Raspberry Pi Noble 6.8
+- Raspberry Pi Oracular 6.11
+- Intel IoT Noble 6.8
+- NVIDIA Tegra Noble 6.8
 
 ## Example Configurations
 
