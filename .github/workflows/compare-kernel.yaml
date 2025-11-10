@@ -52,7 +52,7 @@ jobs:
             *) EXT="txt" ;;
           esac
           OUTPUT_FILE="kernel-diff.${EXT}"
-          ./compare-ubuntu-kernel.sh -f ${{ github.event.inputs.format }} ${{ github.event.inputs.git_url }} ${{ github.event.inputs.branch }} ${{ github.event.inputs.kernel_version }} | tee "${OUTPUT_FILE}"
+          ./compare-ubuntu-kernel.sh -f ${{ github.event.inputs.format }} ${{ github.event.inputs.git_url}} ${{ github.event.inputs.branch}} ${{ github.event.inputs.kernel_version}} | tee "${OUTPUT_FILE}"
           echo "output_file=${OUTPUT_FILE}" >> $GITHUB_OUTPUT
       - name: upload report
         id: upload
