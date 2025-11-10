@@ -55,16 +55,15 @@ GIT_URL="$1"
 BRANCH="$2"
 VERSION="$3"
 
-git clone -b $BRANCH --bare --filter=blob:none --single-branch $GIT_URL work_dir
-cd work_dir
+git clone -b "$BRANCH" --bare --filter=blob:none --single-branch "$GIT_URL" work_dir
+cd work_dir || exit 1
 
 # Get commit SHA
-SHA=`git log --grep "UBUNTU: Ubuntu-$VERSION" | head -n 1 | cut -f 2 -d " "`
+SHA=$(git log --grep "UBUNTU: Ubuntu-$VERSION" | head -n 1 | cut -f 2 -d " ")
 
 # Collect data
-COMMIT_COUNT=$(git rev-list --count $SHA..$BRANCH)
-DIFF_STATS=$(git diff --shortstat $SHA..$BRANCH)
-COMMIT_LOG=$(git log --grep "UBUNTU: Ubuntu-$VERSION" --oneline | head -n 7)
+COMMIT_COUNT=$(git rev-list --count "$SHA".."$BRANCH")
+DIFF_STATS=$(git diff --shortstat "$SHA".."$BRANCH")
 
 # Extract diff statistics
 FILES_CHANGED=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ file' | grep -o '[0-9]\+' || echo "0")
