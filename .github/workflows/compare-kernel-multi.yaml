@@ -100,7 +100,8 @@ jobs:
             echo "  Version: $VERSION"
             
             # Run comparison and save to individual file
-            ./compare-ubuntu-kernel.sh -f csv "$GIT_URL" "$BRANCH" "$VERSION" > "results/result_${i}.csv" 2>&1 || {
+            # Use tee to capture output while also displaying it in logs for troubleshooting
+            ./compare-ubuntu-kernel.sh -f csv "$GIT_URL" "$BRANCH" "$VERSION" 2>&1 | tee "results/result_${i}.csv" || {
               echo "Warning: Comparison failed for configuration: $NAME"
               echo "$NAME,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR" > "results/result_${i}.csv"
             }
