@@ -8,6 +8,12 @@ Utility tools for comparing Ubuntu kernel derivatives.
 
 A script to compare Ubuntu kernel derivatives against their base Ubuntu kernel version.
 
+**Features:**
+- Identifies the base Ubuntu kernel commit
+- Counts commits on top of the base version
+- Shows overall diff statistics (files changed, insertions, deletions)
+- Provides per-folder difference analysis showing which directories have the most changes
+
 **Usage:**
 ```bash
 ./compare-ubuntu-kernel.sh [OPTIONS] <Ubuntu source tree> <git branch> <Ubuntu kernel version>
