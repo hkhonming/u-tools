@@ -64,6 +64,7 @@ SHA=$(git log --grep "UBUNTU: Ubuntu-$VERSION" | head -n 1 | cut -f 2 -d " ")
 # Collect data
 COMMIT_COUNT=$(git rev-list --count "$SHA".."$BRANCH")
 DIFF_STATS=$(git diff --shortstat "$SHA".."$BRANCH")
+FOLDER_STATS=$(git diff --dirstat "$SHA".."$BRANCH")
 
 # Extract diff statistics
 FILES_CHANGED=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ file' | grep -o '[0-9]\+' || echo "0")
@@ -80,8 +81,31 @@ case $FORMAT in
         echo "$COMMIT_COUNT"
         echo "### Differences on top of generic Ubuntu ###"
         echo "$DIFF_STATS"
+        echo ""
+        echo "### Per-folder differences ###"
+        if [ -n "$FOLDER_STATS" ]; then
+            echo "$FOLDER_STATS"
+        else
+            echo "No folder differences"
+        fi
         ;;
     json)
+        # Convert folder stats to JSON array
+        FOLDER_STATS_JSON="[]"
+        if [ -n "$FOLDER_STATS" ]; then
+            FOLDER_STATS_JSON=$(echo "$FOLDER_STATS" | awk '
+                BEGIN { first=1; printf "[" }
+                {
+                    gsub(/%/, "", $1)
+                    gsub(/\/$/, "", $2)
+                    if (!first) printf ","
+                    printf "{\"folder\": \"%s\", \"percentage\": %.1f}", $2, $1
+                    first=0
+                }
+                END { printf "]" }
+            ')
+        fi
+        
         cat << EOF
 {
   "git_url": "$GIT_URL",
@@ -94,13 +118,20 @@ case $FORMAT in
     "insertions": $INSERTIONS,
     "deletions": $DELETIONS,
     "raw": "$DIFF_STATS"
-  }
+  },
+  "folder_stats": $FOLDER_STATS_JSON
 }
 EOF
         ;;
     csv)
-        echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
-        echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS"
+        # Convert folder stats to pipe-separated format
+        FOLDER_STATS_CSV=""
+        if [ -n "$FOLDER_STATS" ]; then
+            FOLDER_STATS_CSV=$(echo "$FOLDER_STATS" | awk '{printf "%s:%s|", $1, $2}' | sed 's/|$//')
+        fi
+        
+        echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions,folder_stats"
+        echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS,\"$FOLDER_STATS_CSV\""
         ;;
     markdown)
         cat << EOF
@@ -125,6 +156,18 @@ $COMMIT_COUNT commits
 | Deletions | $DELETIONS |
 
 **Raw diff stats**: $DIFF_STATS
+
+### Per-folder Differences
 EOF
+        
+        if [ -n "$FOLDER_STATS" ]; then
+            echo ""
+            echo "| Folder | Percentage |"
+            echo "|--------|------------|"
+            echo "$FOLDER_STATS" | awk '{printf "| %s | %s |\n", $2, $1}'
+        else
+            echo ""
+            echo "No folder differences"
+        fi
         ;;
 esac
