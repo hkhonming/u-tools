@@ -134,8 +134,8 @@ jobs:
           |---------------|---------|--------|--------------|-------------|----------------|---------------|------------|-----------|
           EOF
             
-            # Process each result
-            for result_file in results/result_*_named.csv; do
+            # Process each result in numeric order
+            for result_file in $(ls results/result_*_named.csv | sort -V); do
               if [ -f "$result_file" ]; then
                 # Convert CSV to markdown table row
                 awk 'BEGIN{FS=","; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7, $8, $9 " |"}' "$result_file" >> combined-results.md
@@ -155,8 +155,8 @@ jobs:
           configuration,git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions
           EOF
             
-            # Concatenate all named results
-            for result_file in results/result_*_named.csv; do
+            # Concatenate all named results in numeric order
+            for result_file in $(ls results/result_*_named.csv | sort -V); do
               if [ -f "$result_file" ]; then
                 cat "$result_file" >> combined-results.csv
               fi
