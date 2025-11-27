@@ -70,6 +70,35 @@ FILES_CHANGED=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ file' | grep -o '[0-9]\+' 
 INSERTIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
 DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
 
+# Collect per-folder statistics
+FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
+    if ($1 == "-" || $2 == "-") {
+        # Binary file, count as 0 changes
+        add = 0
+        del = 0
+    } else {
+        add = $1
+        del = $2
+    }
+    file = $3
+    # Extract top-level directory
+    split(file, parts, "/")
+    if (length(parts) > 1) {
+        dir = parts[1] "/"
+    } else {
+        dir = "(root)"
+    }
+    
+    files[dir]++
+    additions[dir] += add
+    deletions[dir] += del
+}
+END {
+    for (dir in files) {
+        printf "%s\t%d\t%d\t%d\n", dir, files[dir], additions[dir], deletions[dir]
+    }
+}' | sort -k2 -rn)
+
 # Output based on format
 case $FORMAT in
     text)
@@ -80,8 +109,29 @@ case $FORMAT in
         echo "$COMMIT_COUNT"
         echo "### Differences on top of generic Ubuntu ###"
         echo "$DIFF_STATS"
+        echo ""
+        echo "### Per-folder breakdown ###"
+        if [ -n "$FOLDER_STATS" ]; then
+            printf "%-40s %10s %10s %10s\n" "Directory" "Files" "Insertions" "Deletions"
+            printf "%-40s %10s %10s %10s\n" "----------------------------------------" "----------" "----------" "----------"
+            echo "$FOLDER_STATS" | while IFS=$'\t' read -r dir files adds dels; do
+                printf "%-40s %10d %10d %10d\n" "$dir" "$files" "$adds" "$dels"
+            done
+        else
+            echo "No changes found."
+        fi
         ;;
     json)
+        # Build folder stats JSON array
+        FOLDER_JSON=""
+        if [ -n "$FOLDER_STATS" ]; then
+            FOLDER_JSON=$(echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; first=1} {
+                if (!first) printf ","
+                first=0
+                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", $1, $2, $3, $4
+            }')
+        fi
+        
         cat << EOF
 {
   "git_url": "$GIT_URL",
@@ -94,13 +144,21 @@ case $FORMAT in
     "insertions": $INSERTIONS,
     "deletions": $DELETIONS,
     "raw": "$DIFF_STATS"
-  }
+  },
+  "per_folder_stats": [$FOLDER_JSON
+  ]
 }
 EOF
         ;;
     csv)
         echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
         echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS"
+        if [ -n "$FOLDER_STATS" ]; then
+            echo ""
+            echo "# Per-folder breakdown"
+            echo "directory,files,insertions,deletions"
+            echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; OFS=","} {print $1, $2, $3, $4}'
+        fi
         ;;
     markdown)
         cat << EOF
@@ -125,6 +183,19 @@ $COMMIT_COUNT commits
 | Deletions | $DELETIONS |
 
 **Raw diff stats**: $DIFF_STATS
+
+### Per-folder Breakdown
 EOF
+        if [ -n "$FOLDER_STATS" ]; then
+            echo ""
+            echo "| Directory | Files Changed | Insertions | Deletions |"
+            echo "|-----------|---------------|------------|-----------|"
+            echo "$FOLDER_STATS" | while IFS=$'\t' read -r dir files adds dels; do
+                echo "| $dir | $files | $adds | $dels |"
+            done
+        else
+            echo ""
+            echo "No changes found."
+        fi
         ;;
 esac
