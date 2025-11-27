@@ -147,7 +147,14 @@ EOF
             echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; first=1} {
                 if (!first) printf ","
                 first=0
-                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", $1, $2, $3, $4
+                # Escape special characters in directory name for JSON
+                dir = $1
+                gsub(/\\/, "\\\\", dir)
+                gsub(/"/, "\\\"", dir)
+                gsub(/\n/, "\\n", dir)
+                gsub(/\r/, "\\r", dir)
+                gsub(/\t/, "\\t", dir)
+                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", dir, $2, $3, $4
             }
             END { printf "\n" }'
         fi
