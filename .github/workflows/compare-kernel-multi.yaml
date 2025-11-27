@@ -267,7 +267,7 @@ jobs:
               
               # Convert the markdown file to HTML
               awk '
-                BEGIN { in_table = 0 }
+                BEGIN { in_table = 0; in_list = 0; is_header = 0 }
                 /^# / { print "<h1>" substr($0, 3) "</h1>"; next }
                 /^## / { print "<h2>" substr($0, 4) "</h2>"; next }
                 /^### / { print "<h3>" substr($0, 5) "</h3>"; next }
@@ -291,14 +291,14 @@ jobs:
                   gsub(/ \|$/, "")
                   if (is_header) {
                     print "<thead><tr>"
-                    split($0, headers, / \| /)
-                    for (i in headers) print "<th>" headers[i] "</th>"
+                    n = split($0, headers, / \| /)
+                    for (i = 1; i <= n; i++) print "<th>" headers[i] "</th>"
                     print "</tr></thead><tbody>"
                     is_header = 0
                   } else {
                     print "<tr>"
-                    split($0, cells, / \| /)
-                    for (i in cells) print "<td>" cells[i] "</td>"
+                    n = split($0, cells, / \| /)
+                    for (i = 1; i <= n; i++) print "<td>" cells[i] "</td>"
                     print "</tr>"
                   }
                   next
@@ -395,8 +395,8 @@ jobs:
                 print "<thead><tr>"
                 gsub(/^\| /, "")
                 gsub(/ \|$/, "")
-                split($0, headers, " \\| ")
-                for (i in headers) print "<th>" headers[i] "</th>"
+                n = split($0, headers, " \\| ")
+                for (i = 1; i <= n; i++) print "<th>" headers[i] "</th>"
                 print "</tr></thead><tbody>"
                 next
               }
@@ -407,8 +407,8 @@ jobs:
                 gsub(/ \|$/, "")
                 # Handle markdown links in the first column
                 line = $0
-                split(line, cells, " \\| ")
-                for (i in cells) {
+                n = split(line, cells, " \\| ")
+                for (i = 1; i <= n; i++) {
                   cell = cells[i]
                   # Convert markdown link to HTML link
                   if (match(cell, /\[([^\]]+)\]\(([^)]+)\)/, arr)) {
