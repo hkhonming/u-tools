@@ -77,8 +77,8 @@ FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
         add = 0
         del = 0
     } else {
-        add = $1
-        del = $2
+        add = +$1
+        del = +$2
     }
     file = $3
     # Extract top-level directory
@@ -88,6 +88,10 @@ FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
     } else {
         dir = "(root)"
     }
+    
+    # Initialize if not already present
+    if (!(dir in additions)) additions[dir] = 0
+    if (!(dir in deletions)) deletions[dir] = 0
     
     files[dir]++
     additions[dir] += add
@@ -122,16 +126,6 @@ case $FORMAT in
         fi
         ;;
     json)
-        # Build folder stats JSON array
-        FOLDER_JSON=""
-        if [ -n "$FOLDER_STATS" ]; then
-            FOLDER_JSON=$(echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; first=1} {
-                if (!first) printf ","
-                first=0
-                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", $1, $2, $3, $4
-            }')
-        fi
-        
         cat << EOF
 {
   "git_url": "$GIT_URL",
@@ -145,7 +139,20 @@ case $FORMAT in
     "deletions": $DELETIONS,
     "raw": "$DIFF_STATS"
   },
-  "per_folder_stats": [$FOLDER_JSON
+  "per_folder_stats": [
+EOF
+        
+        # Build folder stats JSON array
+        if [ -n "$FOLDER_STATS" ]; then
+            echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; first=1} {
+                if (!first) printf ","
+                first=0
+                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", $1, $2, $3, $4
+            }
+            END { printf "\n" }'
+        fi
+        
+        cat << EOF
   ]
 }
 EOF
