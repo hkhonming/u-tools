@@ -70,7 +70,7 @@ FILES_CHANGED=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ file' | grep -o '[0-9]\+' 
 INSERTIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
 DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
 
-# Collect per-folder statistics
+# Collect per-folder statistics (top-level only)
 FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
     if ($1 == "-" || $2 == "-") {
         # Binary file, count as 0 changes
@@ -87,6 +87,49 @@ FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
         dir = parts[1] "/"
     } else {
         dir = "(root)"
+    }
+    
+    # Initialize if not already present
+    if (!(dir in additions)) additions[dir] = 0
+    if (!(dir in deletions)) deletions[dir] = 0
+    
+    files[dir]++
+    additions[dir] += add
+    deletions[dir] += del
+}
+END {
+    for (dir in files) {
+        printf "%s\t%d\t%d\t%d\n", dir, files[dir], additions[dir], deletions[dir]
+    }
+}' | sort -k2 -rn)
+
+# Collect detailed per-folder statistics (2 levels, 4 for arch/)
+FOLDER_STATS_DETAILED=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
+    if ($1 == "-" || $2 == "-") {
+        # Binary file, count as 0 changes
+        add = 0
+        del = 0
+    } else {
+        add = +$1
+        del = +$2
+    }
+    file = $3
+    # Extract directory path based on depth rules
+    split(file, parts, "/")
+    if (length(parts) == 1) {
+        dir = "(root)"
+    } else {
+        # For arch/, show up to 4 levels; otherwise 2 levels
+        if (parts[1] == "arch") {
+            depth = (length(parts) > 4) ? 4 : length(parts) - 1
+        } else {
+            depth = (length(parts) > 2) ? 2 : length(parts) - 1
+        }
+        
+        dir = ""
+        for (i = 1; i <= depth; i++) {
+            dir = dir parts[i] "/"
+        }
     }
     
     # Initialize if not already present
@@ -120,6 +163,17 @@ case $FORMAT in
             printf "%-40s %10s %10s %10s\n" "----------------------------------------" "----------" "----------" "----------"
             echo "$FOLDER_STATS" | while IFS=$'\t' read -r dir files adds dels; do
                 printf "%-40s %10d %10d %10d\n" "$dir" "$files" "$adds" "$dels"
+            done
+        else
+            echo "No changes found."
+        fi
+        echo ""
+        echo "### Detailed per-folder breakdown ###"
+        if [ -n "$FOLDER_STATS_DETAILED" ]; then
+            printf "%-50s %10s %10s %10s\n" "Directory" "Files" "Insertions" "Deletions"
+            printf "%-50s %10s %10s %10s\n" "--------------------------------------------------" "----------" "----------" "----------"
+            echo "$FOLDER_STATS_DETAILED" | while IFS=$'\t' read -r dir files adds dels; do
+                printf "%-50s %10d %10d %10d\n" "$dir" "$files" "$adds" "$dels"
             done
         else
             echo "No changes found."
@@ -160,6 +214,28 @@ EOF
         fi
         
         cat << EOF
+  ],
+  "per_folder_stats_detailed": [
+EOF
+        
+        # Build detailed folder stats JSON array
+        if [ -n "$FOLDER_STATS_DETAILED" ]; then
+            echo "$FOLDER_STATS_DETAILED" | awk 'BEGIN {FS="\t"; first=1} {
+                if (!first) printf ","
+                first=0
+                # Escape special characters in directory name for JSON
+                dir = $1
+                gsub(/\\/, "\\\\", dir)
+                gsub(/"/, "\\\"", dir)
+                gsub(/\n/, "\\n", dir)
+                gsub(/\r/, "\\r", dir)
+                gsub(/\t/, "\\t", dir)
+                printf "\n    {\"directory\": \"%s\", \"files\": %d, \"insertions\": %d, \"deletions\": %d}", dir, $2, $3, $4
+            }
+            END { printf "\n" }'
+        fi
+        
+        cat << EOF
   ]
 }
 EOF
@@ -169,6 +245,12 @@ EOF
             echo "# Per-folder breakdown"
             echo "directory,files,insertions,deletions"
             echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; OFS=","} {print $1, $2, $3, $4}'
+            echo ""
+        fi
+        if [ -n "$FOLDER_STATS_DETAILED" ]; then
+            echo "# Detailed per-folder breakdown"
+            echo "directory,files,insertions,deletions"
+            echo "$FOLDER_STATS_DETAILED" | awk 'BEGIN {FS="\t"; OFS=","} {print $1, $2, $3, $4}'
             echo ""
         fi
         echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
@@ -205,6 +287,22 @@ EOF
             echo "| Directory | Files Changed | Insertions | Deletions |"
             echo "|-----------|---------------|------------|-----------|"
             echo "$FOLDER_STATS" | while IFS=$'\t' read -r dir files adds dels; do
+                echo "| $dir | $files | $adds | $dels |"
+            done
+        else
+            echo ""
+            echo "No changes found."
+        fi
+        
+        cat << EOF
+
+### Detailed Per-folder Breakdown
+EOF
+        if [ -n "$FOLDER_STATS_DETAILED" ]; then
+            echo ""
+            echo "| Directory | Files Changed | Insertions | Deletions |"
+            echo "|-----------|---------------|------------|-----------|"
+            echo "$FOLDER_STATS_DETAILED" | while IFS=$'\t' read -r dir files adds dels; do
                 echo "| $dir | $files | $adds | $dels |"
             done
         else
