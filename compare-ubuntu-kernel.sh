@@ -151,14 +151,14 @@ case $FORMAT in
 EOF
         ;;
     csv)
-        echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
-        echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS"
         if [ -n "$FOLDER_STATS" ]; then
-            echo ""
             echo "# Per-folder breakdown"
             echo "directory,files,insertions,deletions"
             echo "$FOLDER_STATS" | awk 'BEGIN {FS="\t"; OFS=","} {print $1, $2, $3, $4}'
+            echo ""
         fi
+        echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
+        echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS"
         ;;
     markdown)
         cat << EOF
