@@ -39,9 +39,13 @@ This tool provides:
 The script now provides detailed per-folder analysis to help understand where changes are concentrated:
 
 - **Overall statistics**: Total files changed, insertions, and deletions
-- **Per-folder breakdown**: Shows changes grouped by top-level directory
-  - Helps identify if changes are isolated to specific areas (e.g., device trees, documentation, drivers)
+- **Per-folder breakdown**: Shows changes grouped by top-level directory (e.g., drivers/, arch/, Documentation/)
+  - Provides a high-level overview of which subsystems are affected
   - Sorted by number of files changed (most active directories first)
+- **Detailed per-folder breakdown**: Shows subdirectory-level changes
+  - 2 levels deep for most directories (e.g., drivers/net/, drivers/usb/)
+  - 4 levels deep for arch/ directory (e.g., arch/arm64/boot/dts/)
+  - Helps identify specific subsystems and hardware support changes
   - Available in all output formats (text, JSON, CSV, markdown)
 
 ## GitHub Workflows
