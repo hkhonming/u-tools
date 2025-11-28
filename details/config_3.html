@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linux-riscv-noble - Detailed Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; margin-top: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-link:hover { text-decoration: underline; }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul { list-style-position: inside; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="nav-link">← Back to Summary</a>
+<p>fatal: destination path 'work_dir' already exists and is not an empty directory.</p>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<h2>Repository Information</h2>
+<ul>
+<li>**Git URL**: https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-riscv/+git/noble</li>
+<li>**Branch**: master</li>
+<li>**Base Ubuntu Version**: 6.8</li>
+<li>**Base Commit SHA**: `a7bbcbe5de91a5987a6897882871dea34eaee08b`</li>
+</ul>
+<h2>Comparison Results</h2>
+<h3>Commits on Top of Generic Ubuntu</h3>
+<p>205 commits</p>
+<h3>Differences from Generic Ubuntu</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead><tbody>
+<tr>
+<td>Files Changed</td>
+<td>112</td>
+</tr>
+<tr>
+<td>Insertions</td>
+<td>43924</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>1692</td>
+</tr>
+</tbody></table>
+<p><strong>Raw diff stats:</strong>  112 files changed, 43924 insertions(+), 1692 deletions(-)</p>
+<h3>Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/</td>
+<td>33</td>
+<td>3849</td>
+<td>692</td>
+</tr>
+<tr>
+<td>Documentation/</td>
+<td>32</td>
+<td>635</td>
+<td>86</td>
+</tr>
+<tr>
+<td>arch/</td>
+<td>23</td>
+<td>2250</td>
+<td>895</td>
+</tr>
+<tr>
+<td>debian.riscv/</td>
+<td>14</td>
+<td>36254</td>
+<td>0</td>
+</tr>
+<tr>
+<td>sound/</td>
+<td>3</td>
+<td>897</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>2</td>
+<td>1</td>
+<td>11</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>29</td>
+<td>7</td>
+</tr>
+<tr>
+<td>scripts/</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.master/</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<h3>Detailed Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>Documentation/devicetree/</td>
+<td>32</td>
+<td>635</td>
+<td>86</td>
+</tr>
+<tr>
+<td>arch/riscv/boot/dts/</td>
+<td>21</td>
+<td>2050</td>
+<td>527</td>
+</tr>
+<tr>
+<td>drivers/gpu/</td>
+<td>12</td>
+<td>1267</td>
+<td>28</td>
+</tr>
+<tr>
+<td>drivers/pci/</td>
+<td>9</td>
+<td>1526</td>
+<td>560</td>
+</tr>
+<tr>
+<td>debian.riscv/</td>
+<td>6</td>
+<td>35864</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/pwm/</td>
+<td>4</td>
+<td>636</td>
+<td>0</td>
+</tr>
+<tr>
+<td>sound/soc/</td>
+<td>3</td>
+<td>897</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/regulator/</td>
+<td>3</td>
+<td>241</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/clk/</td>
+<td>2</td>
+<td>133</td>
+<td>68</td>
+</tr>
+<tr>
+<td>debian.riscv/control.d/</td>
+<td>2</td>
+<td>126</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.riscv/config/</td>
+<td>2</td>
+<td>205</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/riscv/include/asm/</td>
+<td>2</td>
+<td>200</td>
+<td>368</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>29</td>
+<td>7</td>
+</tr>
+<tr>
+<td>scripts/</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/dt-bindings/</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/thermal/</td>
+<td>1</td>
+<td>14</td>
+<td>11</td>
+</tr>
+<tr>
+<td>drivers/nvmem/</td>
+<td>1</td>
+<td>24</td>
+<td>19</td>
+</tr>
+<tr>
+<td>drivers/mmc/</td>
+<td>1</td>
+<td>8</td>
+<td>6</td>
+</tr>
+<tr>
+<td>debian/rules.d/</td>
+<td>1</td>
+<td>0</td>
+<td>10</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>debian.riscv/scripts/</td>
+<td>1</td>
+<td>27</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.riscv/rules.d/</td>
+<td>1</td>
+<td>21</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.riscv/modprobe.d/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.riscv/etc/</td>
+<td>1</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.master/</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody></table>
+</body></html>

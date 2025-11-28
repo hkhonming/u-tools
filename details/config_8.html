@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linux-bluefield-noble - Detailed Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; margin-top: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-link:hover { text-decoration: underline; }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul { list-style-position: inside; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="nav-link">← Back to Summary</a>
+<p>fatal: destination path 'work_dir' already exists and is not an empty directory.</p>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<h2>Repository Information</h2>
+<ul>
+<li>**Git URL**: https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble</li>
+<li>**Branch**: master-next</li>
+<li>**Base Ubuntu Version**: 6.8</li>
+<li>**Base Commit SHA**: `a725164d3fd4d736a4404597f67d41dca0c44471`</li>
+</ul>
+<h2>Comparison Results</h2>
+<h3>Commits on Top of Generic Ubuntu</h3>
+<p>157 commits</p>
+<h3>Differences from Generic Ubuntu</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead><tbody>
+<tr>
+<td>Files Changed</td>
+<td>171</td>
+</tr>
+<tr>
+<td>Insertions</td>
+<td>66305</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>699</td>
+</tr>
+</tbody></table>
+<p><strong>Raw diff stats:</strong>  171 files changed, 66305 insertions(+), 699 deletions(-)</p>
+<h3>Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/</td>
+<td>126</td>
+<td>13522</td>
+<td>681</td>
+</tr>
+<tr>
+<td>debian.bluefield/</td>
+<td>16</td>
+<td>52120</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/</td>
+<td>14</td>
+<td>104</td>
+<td>7</td>
+</tr>
+<tr>
+<td>net/</td>
+<td>11</td>
+<td>539</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Documentation/</td>
+<td>2</td>
+<td>14</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+</tr>
+</tbody></table>
+<h3>Detailed Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/net/</td>
+<td>40</td>
+<td>666</td>
+<td>172</td>
+</tr>
+<tr>
+<td>drivers/platform/</td>
+<td>18</td>
+<td>10791</td>
+<td>53</td>
+</tr>
+<tr>
+<td>drivers/pinctrl/</td>
+<td>18</td>
+<td>30</td>
+<td>29</td>
+</tr>
+<tr>
+<td>drivers/gpio/</td>
+<td>14</td>
+<td>49</td>
+<td>33</td>
+</tr>
+<tr>
+<td>drivers/infiniband/</td>
+<td>10</td>
+<td>199</td>
+<td>112</td>
+</tr>
+<tr>
+<td>net/xfrm/</td>
+<td>8</td>
+<td>486</td>
+<td>5</td>
+</tr>
+<tr>
+<td>include/linux/</td>
+<td>7</td>
+<td>45</td>
+<td>6</td>
+</tr>
+<tr>
+<td>drivers/mmc/</td>
+<td>7</td>
+<td>382</td>
+<td>111</td>
+</tr>
+<tr>
+<td>drivers/char/</td>
+<td>7</td>
+<td>843</td>
+<td>7</td>
+</tr>
+<tr>
+<td>debian.bluefield/</td>
+<td>7</td>
+<td>49110</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/vfio/</td>
+<td>5</td>
+<td>321</td>
+<td>16</td>
+</tr>
+<tr>
+<td>debian.bluefield/control.d/</td>
+<td>5</td>
+<td>766</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/uapi/</td>
+<td>3</td>
+<td>43</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/net/</td>
+<td>3</td>
+<td>15</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/irqchip/</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>net/ipv6/</td>
+<td>2</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>net/ethtool/</td>
+<td>1</td>
+<td>45</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/rdma/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>drivers/vdpa/</td>
+<td>1</td>
+<td>5</td>
+<td>2</td>
+</tr>
+<tr>
+<td>drivers/power/</td>
+<td>1</td>
+<td>3</td>
+<td>13</td>
+</tr>
+<tr>
+<td>drivers/i2c/</td>
+<td>1</td>
+<td>71</td>
+<td>111</td>
+</tr>
+<tr>
+<td>drivers/edac/</td>
+<td>1</td>
+<td>159</td>
+<td>19</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>debian.bluefield/rules.d/</td>
+<td>1</td>
+<td>21</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.bluefield/modprobe.d/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.bluefield/etc/</td>
+<td>1</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.bluefield/config/</td>
+<td>1</td>
+<td>2213</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/networking/</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/ABI/</td>
+<td>1</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+</tr>
+</tbody></table>
+</body></html>

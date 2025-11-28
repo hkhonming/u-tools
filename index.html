@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubuntu Kernel Comparison Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<p>This report compares multiple Ubuntu kernel derivatives against their base Ubuntu versions.</p>
+<p><strong>Generated on:</strong> 25-11-28 04:31:17 UTC</p>
+<h2>Comparison Table</h2>
+<table>
+<thead><tr>
+<th>Configuration</th>
+<th>Git URL</th>
+<th>Branch</th>
+<th>Base Version</th>
+<th>Base Commit</th>
+<th>Commits on Top</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td><a href="details/config_0.html">linux-raspi-focal</a></td>
+<td>https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/focal</td>
+<td>master-next</td>
+<td>5.4</td>
+<td>5b1c79e54e403ce8ff9d7627c475c5ffa28244fb</td>
+<td>2142</td>
+<td>1145</td>
+<td>403384</td>
+<td>6801</td>
+</tr>
+<tr>
+<td><a href="details/config_1.html">linux-raspi-jammy</a></td>
+<td>https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/jammy</td>
+<td>master-next</td>
+<td>5.15</td>
+<td>0067c029a23be3615d015201469333eaba4c5c48</td>
+<td>1328</td>
+<td>895</td>
+<td>254763</td>
+<td>4480</td>
+</tr>
+<tr>
+<td><a href="details/config_2.html">linux-raspi-noble</a></td>
+<td>https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>1090</td>
+<td>1099</td>
+<td>295908</td>
+<td>3780</td>
+</tr>
+<tr>
+<td><a href="details/config_3.html">linux-riscv-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-riscv/+git/noble</td>
+<td>master</td>
+<td>6.8</td>
+<td>a7bbcbe5de91a5987a6897882871dea34eaee08b</td>
+<td>205</td>
+<td>112</td>
+<td>43924</td>
+<td>1692</td>
+</tr>
+<tr>
+<td><a href="details/config_4.html">linux-riscv-questing</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-riscv/+git/questing</td>
+<td>master</td>
+<td>6.17</td>
+<td>306b3fac1215ff65ab30a38540b8a28eaf86e64e</td>
+<td>19</td>
+<td>18</td>
+<td>28648</td>
+<td>3</td>
+</tr>
+<tr>
+<td><a href="details/config_5.html">linux-intel-iotg-jammy</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-intel-iotg/+git/jammy</td>
+<td>master</td>
+<td>5.15</td>
+<td>0067c029a23be3615d015201469333eaba4c5c48</td>
+<td>742</td>
+<td>415</td>
+<td>97820</td>
+<td>2438</td>
+</tr>
+<tr>
+<td><a href="details/config_6.html">linux-bluefield-focal</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-bluefield/+git/focal</td>
+<td>master-next</td>
+<td>5.4</td>
+<td>5b1c79e54e403ce8ff9d7627c475c5ffa28244fb</td>
+<td>1159</td>
+<td>619</td>
+<td>90475</td>
+<td>4436</td>
+</tr>
+<tr>
+<td><a href="details/config_7.html">linux-bluefield-jammy</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-bluefield/+git/jammy</td>
+<td>master-next</td>
+<td>5.15</td>
+<td>0067c029a23be3615d015201469333eaba4c5c48</td>
+<td>702</td>
+<td>360</td>
+<td>87306</td>
+<td>3405</td>
+</tr>
+<tr>
+<td><a href="details/config_8.html">linux-bluefield-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel-bluefield/ubuntu/+source/linux-bluefield/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>a725164d3fd4d736a4404597f67d41dca0c44471</td>
+<td>157</td>
+<td>171</td>
+<td>66305</td>
+<td>699</td>
+</tr>
+<tr>
+<td><a href="details/config_9.html">linux-nvidia-tegra-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia-tegra/+git/noble</td>
+<td>main-next</td>
+<td>6.8</td>
+<td>a725164d3fd4d736a4404597f67d41dca0c44471</td>
+<td>1037</td>
+<td>383</td>
+<td>120877</td>
+<td>4459</td>
+</tr>
+<tr>
+<td><a href="details/config_10.html">linux-nvidia-jammy</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/jammy</td>
+<td>main-next</td>
+<td>5.15</td>
+<td>0067c029a23be3615d015201469333eaba4c5c48</td>
+<td>342</td>
+<td>48</td>
+<td>53083</td>
+<td>60</td>
+</tr>
+<tr>
+<td><a href="details/config_11.html">linux-nvidia-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble</td>
+<td>main-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>294</td>
+<td>141</td>
+<td>45019</td>
+<td>1924</td>
+</tr>
+<tr>
+<td><a href="details/config_12.html">linux-nvidia-6.11-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble</td>
+<td>nvidia-6.11-next</td>
+<td>6.11</td>
+<td>90502958f6ca61eaa9462f5ec86099f9da843c22</td>
+<td>377</td>
+<td>257</td>
+<td>73290</td>
+<td>2931</td>
+</tr>
+<tr>
+<td><a href="details/config_13.html">linux-nvidia-6.14-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble</td>
+<td>nvidia-6.14-next</td>
+<td>6.14</td>
+<td>2b9cedf1dd50c31746306c4b3a36d678d5f116b7</td>
+<td>866</td>
+<td>713</td>
+<td>109431</td>
+<td>14520</td>
+</tr>
+<tr>
+<td><a href="details/config_14.html">linux-nvidia-6.17-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble</td>
+<td>nvidia-6.17-next</td>
+<td>6.17</td>
+<td>871139e7abd22d0a765d65ff7b837a17ba312d52</td>
+<td>131</td>
+<td>102</td>
+<td>58377</td>
+<td>297</td>
+</tr>
+<tr>
+<td><a href="details/config_15.html">linux-xilinx-zynqmp-focal</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx-zynqmp/+git/focal</td>
+<td>master-next</td>
+<td>5.4</td>
+<td>5b1c79e54e403ce8ff9d7627c475c5ffa28244fb</td>
+<td>2051</td>
+<td>1280</td>
+<td>376240</td>
+<td>5816</td>
+</tr>
+<tr>
+<td><a href="details/config_16.html">linux-xilinx-zynqmp-jammy</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx-zynqmp/+git/jammy</td>
+<td>master-next</td>
+<td>5.15</td>
+<td>a519a40fd4af1db38db2f125f7b9bee644649793</td>
+<td>1459</td>
+<td>1392</td>
+<td>426423</td>
+<td>6704</td>
+</tr>
+<tr>
+<td><a href="details/config_17.html">linux-xilinx-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>a725164d3fd4d736a4404597f67d41dca0c44471</td>
+<td>1356</td>
+<td>998</td>
+<td>311944</td>
+<td>8030</td>
+</tr>
+<tr>
+<td><a href="details/config_18.html">linux-mtk-jammy</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-mtk/+git/jammy</td>
+<td>master-next</td>
+<td>5.15</td>
+<td>0359b6ffda44e0fd0fb88bb7be3d592bc2a1740c</td>
+<td>3776</td>
+<td>3454</td>
+<td>1021400</td>
+<td>17954</td>
+</tr>
+<tr>
+<td><a href="details/config_19.html">linux-qcom-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-qcom/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>2769</td>
+<td>3262</td>
+<td>1780536</td>
+<td>50994</td>
+</tr>
+<tr>
+<td><a href="details/config_20.html">linux-aws-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-aws/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>429</td>
+<td>74</td>
+<td>33762</td>
+<td>990</td>
+</tr>
+<tr>
+<td><a href="details/config_21.html">linux-oracle-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-oracle/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>a725164d3fd4d736a4404597f67d41dca0c44471</td>
+<td>299</td>
+<td>27</td>
+<td>32421</td>
+<td>5</td>
+</tr>
+<tr>
+<td><a href="details/config_22.html">linux-gcp-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-gcp/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>474</td>
+<td>165</td>
+<td>57563</td>
+<td>2874</td>
+</tr>
+<tr>
+<td><a href="details/config_23.html">linux-azure-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-azure/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>446</td>
+<td>102</td>
+<td>37907</td>
+<td>951</td>
+</tr>
+<tr>
+<td><a href="details/config_24.html">linux-ibm-noble</a></td>
+<td>https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-ibm/+git/noble</td>
+<td>master-next</td>
+<td>6.8</td>
+<td>28e5daf6ca5bdc7104d1d5877c7113e578c94e9e</td>
+<td>330</td>
+<td>16</td>
+<td>27554</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<div class="footer">*Report generated on 2025-11-28 04:31:17 UTC*</div>
+<p>Click on any configuration name to see detailed per-folder breakdown.</p>
+</body></html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linux-nvidia-6.11-noble - Detailed Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; margin-top: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-link:hover { text-decoration: underline; }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul { list-style-position: inside; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="nav-link">← Back to Summary</a>
+<p>fatal: destination path 'work_dir' already exists and is not an empty directory.</p>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<h2>Repository Information</h2>
+<ul>
+<li>**Git URL**: https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-nvidia/+git/noble</li>
+<li>**Branch**: nvidia-6.11-next</li>
+<li>**Base Ubuntu Version**: 6.11</li>
+<li>**Base Commit SHA**: `90502958f6ca61eaa9462f5ec86099f9da843c22`</li>
+</ul>
+<h2>Comparison Results</h2>
+<h3>Commits on Top of Generic Ubuntu</h3>
+<p>377 commits</p>
+<h3>Differences from Generic Ubuntu</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead><tbody>
+<tr>
+<td>Files Changed</td>
+<td>257</td>
+</tr>
+<tr>
+<td>Insertions</td>
+<td>73290</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>2931</td>
+</tr>
+</tbody></table>
+<p><strong>Raw diff stats:</strong>  257 files changed, 73290 insertions(+), 2931 deletions(-)</p>
+<h3>Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/</td>
+<td>151</td>
+<td>33962</td>
+<td>1971</td>
+</tr>
+<tr>
+<td>include/</td>
+<td>20</td>
+<td>599</td>
+<td>59</td>
+</tr>
+<tr>
+<td>arch/</td>
+<td>19</td>
+<td>315</td>
+<td>99</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/</td>
+<td>17</td>
+<td>35491</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tools/</td>
+<td>10</td>
+<td>1093</td>
+<td>323</td>
+</tr>
+<tr>
+<td>mm/</td>
+<td>10</td>
+<td>647</td>
+<td>358</td>
+</tr>
+<tr>
+<td>Documentation/</td>
+<td>8</td>
+<td>288</td>
+<td>24</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>7</td>
+<td>75</td>
+<td>65</td>
+</tr>
+<tr>
+<td>net/</td>
+<td>6</td>
+<td>396</td>
+<td>10</td>
+</tr>
+<tr>
+<td>sound/</td>
+<td>5</td>
+<td>403</td>
+<td>6</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>5</td>
+<td>4</td>
+</tr>
+<tr>
+<td>virt/</td>
+<td>1</td>
+<td>7</td>
+<td>12</td>
+</tr>
+<tr>
+<td>kernel/</td>
+<td>1</td>
+<td>9</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<h3>Detailed Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/net/</td>
+<td>52</td>
+<td>23222</td>
+<td>357</td>
+</tr>
+<tr>
+<td>drivers/iommu/</td>
+<td>26</td>
+<td>3251</td>
+<td>583</td>
+</tr>
+<tr>
+<td>include/linux/</td>
+<td>15</td>
+<td>389</td>
+<td>43</td>
+</tr>
+<tr>
+<td>drivers/hwtracing/</td>
+<td>14</td>
+<td>172</td>
+<td>175</td>
+</tr>
+<tr>
+<td>mm/</td>
+<td>10</td>
+<td>647</td>
+<td>358</td>
+</tr>
+<tr>
+<td>drivers/pinctrl/</td>
+<td>10</td>
+<td>3903</td>
+<td>135</td>
+</tr>
+<tr>
+<td>drivers/nvme/</td>
+<td>8</td>
+<td>473</td>
+<td>1</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/</td>
+<td>7</td>
+<td>34251</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tools/perf/</td>
+<td>5</td>
+<td>400</td>
+<td>289</td>
+</tr>
+<tr>
+<td>sound/pci/</td>
+<td>5</td>
+<td>403</td>
+<td>6</td>
+</tr>
+<tr>
+<td>net/sunrpc/</td>
+<td>5</td>
+<td>262</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/usb/</td>
+<td>5</td>
+<td>25</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/char/</td>
+<td>5</td>
+<td>469</td>
+<td>19</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/control.d/</td>
+<td>5</td>
+<td>781</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tools/testing/</td>
+<td>4</td>
+<td>680</td>
+<td>30</td>
+</tr>
+<tr>
+<td>drivers/vfio/</td>
+<td>4</td>
+<td>179</td>
+<td>230</td>
+</tr>
+<tr>
+<td>drivers/cpufreq/</td>
+<td>4</td>
+<td>273</td>
+<td>86</td>
+</tr>
+<tr>
+<td>drivers/acpi/</td>
+<td>4</td>
+<td>348</td>
+<td>51</td>
+</tr>
+<tr>
+<td>Documentation/admin-guide/</td>
+<td>4</td>
+<td>99</td>
+<td>10</td>
+</tr>
+<tr>
+<td>include/acpi/</td>
+<td>3</td>
+<td>17</td>
+<td>5</td>
+</tr>
+<tr>
+<td>drivers/platform/</td>
+<td>3</td>
+<td>843</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/pci/</td>
+<td>3</td>
+<td>96</td>
+<td>49</td>
+</tr>
+<tr>
+<td>drivers/firmware/</td>
+<td>3</td>
+<td>587</td>
+<td>198</td>
+</tr>
+<tr>
+<td>arch/arm64/include/asm/</td>
+<td>3</td>
+<td>55</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/uapi/</td>
+<td>2</td>
+<td>193</td>
+<td>11</td>
+</tr>
+<tr>
+<td>debian/scripts/</td>
+<td>2</td>
+<td>65</td>
+<td>61</td>
+</tr>
+<tr>
+<td>debian/rules.d/</td>
+<td>2</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>2</td>
+<td>5</td>
+<td>1</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/rules.d/</td>
+<td>2</td>
+<td>46</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/config/</td>
+<td>2</td>
+<td>409</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/kernel/cpu/</td>
+<td>2</td>
+<td>6</td>
+<td>3</td>
+</tr>
+<tr>
+<td>arch/arm64/kernel/</td>
+<td>2</td>
+<td>118</td>
+<td>27</td>
+</tr>
+<tr>
+<td>Documentation/security/</td>
+<td>2</td>
+<td>66</td>
+<td>0</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>5</td>
+<td>4</td>
+</tr>
+<tr>
+<td>virt/kvm/</td>
+<td>1</td>
+<td>7</td>
+<td>12</td>
+</tr>
+<tr>
+<td>tools/include/</td>
+<td>1</td>
+<td>13</td>
+<td>4</td>
+</tr>
+<tr>
+<td>net/mac80211/</td>
+<td>1</td>
+<td>134</td>
+<td>6</td>
+</tr>
+<tr>
+<td>kernel/time/</td>
+<td>1</td>
+<td>9</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/watchdog/</td>
+<td>1</td>
+<td>47</td>
+<td>3</td>
+</tr>
+<tr>
+<td>drivers/virt/</td>
+<td>1</td>
+<td>9</td>
+<td>7</td>
+</tr>
+<tr>
+<td>drivers/tty/</td>
+<td>1</td>
+<td>18</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/perf/</td>
+<td>1</td>
+<td>7</td>
+<td>68</td>
+</tr>
+<tr>
+<td>drivers/irqchip/</td>
+<td>1</td>
+<td>7</td>
+<td>1</td>
+</tr>
+<tr>
+<td>drivers/i2c/</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/hid/</td>
+<td>1</td>
+<td>9</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/gpu/</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>drivers/bluetooth/</td>
+<td>1</td>
+<td>12</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/base/</td>
+<td>1</td>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>debian/control.d/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.nvidia-6.11/modprobe.d/</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/mm/pat/</td>
+<td>1</td>
+<td>7</td>
+<td>10</td>
+</tr>
+<tr>
+<td>arch/x86/include/asm/</td>
+<td>1</td>
+<td>52</td>
+<td>28</td>
+</tr>
+<tr>
+<td>arch/x86/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/sparc/include/asm/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/s390/pci/</td>
+<td>1</td>
+<td>12</td>
+<td>10</td>
+</tr>
+<tr>
+<td>arch/s390/mm/</td>
+<td>1</td>
+<td>10</td>
+<td>6</td>
+</tr>
+<tr>
+<td>arch/s390/kernel/</td>
+<td>1</td>
+<td>12</td>
+<td>6</td>
+</tr>
+<tr>
+<td>arch/s390/include/asm/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/powerpc/include/asm/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm64/kvm/hyp/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>arch/arm64/kvm/</td>
+<td>1</td>
+<td>37</td>
+<td>8</td>
+</tr>
+<tr>
+<td>arch/arm64/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/userspace-api/</td>
+<td>1</td>
+<td>120</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Documentation/mm/</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody></table>
+</body></html>

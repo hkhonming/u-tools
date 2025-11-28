@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linux-xilinx-noble - Detailed Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; margin-top: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-link:hover { text-decoration: underline; }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul { list-style-position: inside; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="nav-link">← Back to Summary</a>
+<p>fatal: destination path 'work_dir' already exists and is not an empty directory.</p>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<h2>Repository Information</h2>
+<ul>
+<li>**Git URL**: https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-xilinx/+git/noble</li>
+<li>**Branch**: master-next</li>
+<li>**Base Ubuntu Version**: 6.8</li>
+<li>**Base Commit SHA**: `a725164d3fd4d736a4404597f67d41dca0c44471`</li>
+</ul>
+<h2>Comparison Results</h2>
+<h3>Commits on Top of Generic Ubuntu</h3>
+<p>1356 commits</p>
+<h3>Differences from Generic Ubuntu</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead><tbody>
+<tr>
+<td>Files Changed</td>
+<td>998</td>
+</tr>
+<tr>
+<td>Insertions</td>
+<td>311944</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>8030</td>
+</tr>
+</tbody></table>
+<p><strong>Raw diff stats:</strong>  998 files changed, 311944 insertions(+), 8030 deletions(-)</p>
+<h3>Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/</td>
+<td>450</td>
+<td>174703</td>
+<td>6312</td>
+</tr>
+<tr>
+<td>ubuntu/</td>
+<td>164</td>
+<td>46940</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/</td>
+<td>140</td>
+<td>22397</td>
+<td>238</td>
+</tr>
+<tr>
+<td>Documentation/</td>
+<td>123</td>
+<td>9284</td>
+<td>952</td>
+</tr>
+<tr>
+<td>include/</td>
+<td>79</td>
+<td>7053</td>
+<td>335</td>
+</tr>
+<tr>
+<td>debian.xilinx/</td>
+<td>13</td>
+<td>48964</td>
+<td>0</td>
+</tr>
+<tr>
+<td>sound/</td>
+<td>11</td>
+<td>2195</td>
+<td>162</td>
+</tr>
+<tr>
+<td>crypto/</td>
+<td>8</td>
+<td>297</td>
+<td>19</td>
+</tr>
+<tr>
+<td>kernel/</td>
+<td>4</td>
+<td>9</td>
+<td>3</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>89</td>
+<td>8</td>
+</tr>
+<tr>
+<td>usr/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>net/</td>
+<td>1</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>.github/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<h3>Detailed Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>ubuntu/mali/</td>
+<td>162</td>
+<td>46932</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/devicetree/</td>
+<td>111</td>
+<td>8109</td>
+<td>826</td>
+</tr>
+<tr>
+<td>arch/arm64/boot/dts/</td>
+<td>110</td>
+<td>19810</td>
+<td>157</td>
+</tr>
+<tr>
+<td>drivers/staging/</td>
+<td>76</td>
+<td>23841</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/media/</td>
+<td>58</td>
+<td>47795</td>
+<td>336</td>
+</tr>
+<tr>
+<td>drivers/gpu/</td>
+<td>57</td>
+<td>31006</td>
+<td>1852</td>
+</tr>
+<tr>
+<td>drivers/misc/</td>
+<td>35</td>
+<td>21494</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/linux/</td>
+<td>34</td>
+<td>4471</td>
+<td>331</td>
+</tr>
+<tr>
+<td>drivers/usb/</td>
+<td>33</td>
+<td>5511</td>
+<td>661</td>
+</tr>
+<tr>
+<td>drivers/net/</td>
+<td>20</td>
+<td>7118</td>
+<td>1683</td>
+</tr>
+<tr>
+<td>include/uapi/</td>
+<td>17</td>
+<td>2048</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/clk/</td>
+<td>17</td>
+<td>4809</td>
+<td>78</td>
+</tr>
+<tr>
+<td>drivers/mtd/</td>
+<td>15</td>
+<td>2209</td>
+<td>376</td>
+</tr>
+<tr>
+<td>arch/arm/boot/dts/</td>
+<td>13</td>
+<td>421</td>
+<td>69</td>
+</tr>
+<tr>
+<td>sound/soc/</td>
+<td>11</td>
+<td>2195</td>
+<td>162</td>
+</tr>
+<tr>
+<td>drivers/phy/</td>
+<td>9</td>
+<td>8789</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/iio/</td>
+<td>9</td>
+<td>2837</td>
+<td>36</td>
+</tr>
+<tr>
+<td>drivers/fpga/</td>
+<td>9</td>
+<td>810</td>
+<td>5</td>
+</tr>
+<tr>
+<td>drivers/cdx/</td>
+<td>9</td>
+<td>394</td>
+<td>3</td>
+</tr>
+<tr>
+<td>drivers/crypto/</td>
+<td>8</td>
+<td>2157</td>
+<td>167</td>
+</tr>
+<tr>
+<td>include/dt-bindings/</td>
+<td>7</td>
+<td>254</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/uio/</td>
+<td>7</td>
+<td>966</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/ufs/</td>
+<td>7</td>
+<td>565</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/spi/</td>
+<td>7</td>
+<td>1311</td>
+<td>364</td>
+</tr>
+<tr>
+<td>drivers/dma/</td>
+<td>7</td>
+<td>3416</td>
+<td>4</td>
+</tr>
+<tr>
+<td>debian.xilinx/</td>
+<td>7</td>
+<td>46044</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/drm/</td>
+<td>6</td>
+<td>45</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/ptp/</td>
+<td>6</td>
+<td>637</td>
+<td>122</td>
+</tr>
+<tr>
+<td>crypto/</td>
+<td>6</td>
+<td>281</td>
+<td>18</td>
+</tr>
+<tr>
+<td>arch/arm/mach-zynq/</td>
+<td>6</td>
+<td>86</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Documentation/userspace-api/</td>
+<td>6</td>
+<td>1041</td>
+<td>124</td>
+</tr>
+<tr>
+<td>include/crypto/</td>
+<td>5</td>
+<td>22</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/xen/</td>
+<td>5</td>
+<td>162</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/remoteproc/</td>
+<td>5</td>
+<td>1542</td>
+<td>184</td>
+</tr>
+<tr>
+<td>drivers/firmware/</td>
+<td>5</td>
+<td>1865</td>
+<td>103</td>
+</tr>
+<tr>
+<td>include/xen/</td>
+<td>4</td>
+<td>31</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/vfio/</td>
+<td>4</td>
+<td>289</td>
+<td>2</td>
+</tr>
+<tr>
+<td>drivers/of/</td>
+<td>4</td>
+<td>310</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/nvmem/</td>
+<td>4</td>
+<td>1402</td>
+<td>32</td>
+</tr>
+<tr>
+<td>drivers/edac/</td>
+<td>4</td>
+<td>1046</td>
+<td>37</td>
+</tr>
+<tr>
+<td>arch/arm64/configs/</td>
+<td>4</td>
+<td>1827</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/ABI/</td>
+<td>4</td>
+<td>128</td>
+<td>1</td>
+</tr>
+<tr>
+<td>kernel/irq/</td>
+<td>3</td>
+<td>5</td>
+<td>2</td>
+</tr>
+<tr>
+<td>include/ufs/</td>
+<td>3</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/media/</td>
+<td>3</td>
+<td>176</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/thermal/</td>
+<td>3</td>
+<td>103</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/pwm/</td>
+<td>3</td>
+<td>381</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/mfd/</td>
+<td>3</td>
+<td>110</td>
+<td>31</td>
+</tr>
+<tr>
+<td>drivers/irqchip/</td>
+<td>3</td>
+<td>162</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/hwmon/</td>
+<td>3</td>
+<td>382</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/microblaze/kernel/</td>
+<td>3</td>
+<td>11</td>
+<td>9</td>
+</tr>
+<tr>
+<td>ubuntu/</td>
+<td>2</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/soc/</td>
+<td>2</td>
+<td>143</td>
+<td>23</td>
+</tr>
+<tr>
+<td>drivers/rpmsg/</td>
+<td>2</td>
+<td>36</td>
+<td>7</td>
+</tr>
+<tr>
+<td>drivers/pci/</td>
+<td>2</td>
+<td>91</td>
+<td>12</td>
+</tr>
+<tr>
+<td>debian.xilinx/control.d/</td>
+<td>2</td>
+<td>148</td>
+<td>0</td>
+</tr>
+<tr>
+<td>crypto/asymmetric_keys/</td>
+<td>2</td>
+<td>16</td>
+<td>1</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>2</td>
+<td>89</td>
+<td>8</td>
+</tr>
+<tr>
+<td>usr/include/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>net/ipv4/</td>
+<td>1</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>kernel/</td>
+<td>1</td>
+<td>4</td>
+<td>1</td>
+</tr>
+<tr>
+<td>drivers/virtio/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>drivers/video/</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/tty/</td>
+<td>1</td>
+<td>230</td>
+<td>21</td>
+</tr>
+<tr>
+<td>drivers/pinctrl/</td>
+<td>1</td>
+<td>57</td>
+<td>4</td>
+</tr>
+<tr>
+<td>drivers/mmc/</td>
+<td>1</td>
+<td>17</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/mailbox/</td>
+<td>1</td>
+<td>371</td>
+<td>54</td>
+</tr>
+<tr>
+<td>drivers/i3c/</td>
+<td>1</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/i2c/</td>
+<td>1</td>
+<td>317</td>
+<td>106</td>
+</tr>
+<tr>
+<td>drivers/clocksource/</td>
+<td>1</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>debian.xilinx/rules.d/</td>
+<td>1</td>
+<td>27</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.xilinx/modprobe.d/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.xilinx/etc/</td>
+<td>1</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.xilinx/config/</td>
+<td>1</td>
+<td>2735</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/microblaze/mm/</td>
+<td>1</td>
+<td>6</td>
+<td>1</td>
+</tr>
+<tr>
+<td>arch/microblaze/include/asm/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm64/kernel/</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm/configs/</td>
+<td>1</td>
+<td>229</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/networking/</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/misc-devices/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>.github/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+</tbody></table>
+</body></html>

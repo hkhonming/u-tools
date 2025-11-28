@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linux-gcp-noble - Detailed Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #555; margin-top: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background-color: #f5f5f5; }
+        .nav-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-link:hover { text-decoration: underline; }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        ul { list-style-position: inside; }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="nav-link">← Back to Summary</a>
+<p>fatal: destination path 'work_dir' already exists and is not an empty directory.</p>
+<h1>Ubuntu Kernel Comparison Report</h1>
+<h2>Repository Information</h2>
+<ul>
+<li>**Git URL**: https://git.launchpad.net/~canonical-kernel/ubuntu/+source/linux-gcp/+git/noble</li>
+<li>**Branch**: master-next</li>
+<li>**Base Ubuntu Version**: 6.8</li>
+<li>**Base Commit SHA**: `28e5daf6ca5bdc7104d1d5877c7113e578c94e9e`</li>
+</ul>
+<h2>Comparison Results</h2>
+<h3>Commits on Top of Generic Ubuntu</h3>
+<p>474 commits</p>
+<h3>Differences from Generic Ubuntu</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead><tbody>
+<tr>
+<td>Files Changed</td>
+<td>165</td>
+</tr>
+<tr>
+<td>Insertions</td>
+<td>57563</td>
+</tr>
+<tr>
+<td>Deletions</td>
+<td>2874</td>
+</tr>
+</tbody></table>
+<p><strong>Raw diff stats:</strong>  165 files changed, 57563 insertions(+), 2874 deletions(-)</p>
+<h3>Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/</td>
+<td>53</td>
+<td>2449</td>
+<td>1794</td>
+</tr>
+<tr>
+<td>arch/</td>
+<td>47</td>
+<td>2476</td>
+<td>359</td>
+</tr>
+<tr>
+<td>debian.gcp/</td>
+<td>21</td>
+<td>51021</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tools/</td>
+<td>13</td>
+<td>816</td>
+<td>507</td>
+</tr>
+<tr>
+<td>include/</td>
+<td>11</td>
+<td>352</td>
+<td>109</td>
+</tr>
+<tr>
+<td>Documentation/</td>
+<td>7</td>
+<td>186</td>
+<td>11</td>
+</tr>
+<tr>
+<td>net/</td>
+<td>4</td>
+<td>14</td>
+<td>10</td>
+</tr>
+<tr>
+<td>mm/</td>
+<td>4</td>
+<td>228</td>
+<td>72</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>lib/</td>
+<td>1</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>fs/</td>
+<td>1</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<h3>Detailed Per-folder Breakdown</h3>
+<table>
+<thead><tr>
+<th>Directory</th>
+<th>Files Changed</th>
+<th>Insertions</th>
+<th>Deletions</th>
+</tr></thead><tbody>
+<tr>
+<td>drivers/hwtracing/</td>
+<td>24</td>
+<td>703</td>
+<td>767</td>
+</tr>
+<tr>
+<td>tools/perf/</td>
+<td>11</td>
+<td>793</td>
+<td>503</td>
+</tr>
+<tr>
+<td>drivers/net/</td>
+<td>11</td>
+<td>1108</td>
+<td>763</td>
+</tr>
+<tr>
+<td>include/linux/</td>
+<td>9</td>
+<td>350</td>
+<td>109</td>
+</tr>
+<tr>
+<td>arch/arm64/mm/</td>
+<td>9</td>
+<td>448</td>
+<td>43</td>
+</tr>
+<tr>
+<td>debian.gcp/</td>
+<td>7</td>
+<td>49688</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/include/asm/</td>
+<td>7</td>
+<td>201</td>
+<td>9</td>
+</tr>
+<tr>
+<td>drivers/char/</td>
+<td>5</td>
+<td>163</td>
+<td>23</td>
+</tr>
+<tr>
+<td>debian.gcp/control.d/</td>
+<td>5</td>
+<td>671</td>
+<td>0</td>
+</tr>
+<tr>
+<td>net/ipv4/</td>
+<td>4</td>
+<td>14</td>
+<td>10</td>
+</tr>
+<tr>
+<td>mm/</td>
+<td>4</td>
+<td>228</td>
+<td>72</td>
+</tr>
+<tr>
+<td>debian.gcp/d-i/</td>
+<td>4</td>
+<td>209</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm64/kernel/</td>
+<td>4</td>
+<td>163</td>
+<td>13</td>
+</tr>
+<tr>
+<td>drivers/virt/</td>
+<td>3</td>
+<td>370</td>
+<td>65</td>
+</tr>
+<tr>
+<td>drivers/cpufreq/</td>
+<td>3</td>
+<td>48</td>
+<td>84</td>
+</tr>
+<tr>
+<td>arch/arm64/include/asm/</td>
+<td>3</td>
+<td>539</td>
+<td>66</td>
+</tr>
+<tr>
+<td>drivers/pci/</td>
+<td>2</td>
+<td>12</td>
+<td>3</td>
+</tr>
+<tr>
+<td>debian/</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>debian.gcp/rules.d/</td>
+<td>2</td>
+<td>49</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/lib/</td>
+<td>2</td>
+<td>0</td>
+<td>16</td>
+</tr>
+<tr>
+<td>arch/x86/kernel/cpu/</td>
+<td>2</td>
+<td>6</td>
+<td>3</td>
+</tr>
+<tr>
+<td>arch/s390/include/asm/</td>
+<td>2</td>
+<td>17</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/admin-guide/</td>
+<td>2</td>
+<td>59</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Documentation/ABI/</td>
+<td>2</td>
+<td>75</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tools/include/</td>
+<td>1</td>
+<td>13</td>
+<td>4</td>
+</tr>
+<tr>
+<td>tools/arch/</td>
+<td>1</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>lib/</td>
+<td>1</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>include/uapi/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>include/net/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>fs/configfs/</td>
+<td>1</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/perf/</td>
+<td>1</td>
+<td>7</td>
+<td>68</td>
+</tr>
+<tr>
+<td>drivers/iommu/</td>
+<td>1</td>
+<td>16</td>
+<td>6</td>
+</tr>
+<tr>
+<td>drivers/i2c/</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>drivers/base/</td>
+<td>1</td>
+<td>5</td>
+<td>3</td>
+</tr>
+<tr>
+<td>drivers/acpi/</td>
+<td>1</td>
+<td>12</td>
+<td>12</td>
+</tr>
+<tr>
+<td>debian.gcp/modprobe.d/</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.gcp/etc/</td>
+<td>1</td>
+<td>7</td>
+<td>0</td>
+</tr>
+<tr>
+<td>debian.gcp/config/</td>
+<td>1</td>
+<td>394</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/mm/</td>
+<td>1</td>
+<td>7</td>
+<td>1</td>
+</tr>
+<tr>
+<td>arch/x86/kernel/</td>
+<td>1</td>
+<td>0</td>
+<td>5</td>
+</tr>
+<tr>
+<td>arch/x86/include/uapi/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/coco/sev/</td>
+<td>1</td>
+<td>15</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/coco/</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/x86/boot/compressed/</td>
+<td>1</td>
+<td>155</td>
+<td>108</td>
+</tr>
+<tr>
+<td>arch/sparc/include/asm/</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/s390/pci/</td>
+<td>1</td>
+<td>0</td>
+<td>6</td>
+</tr>
+<tr>
+<td>arch/riscv/include/asm/</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/powerpc/mm/</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>arch/powerpc/include/asm/</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/nios2/include/asm/</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm64/kvm/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>arch/arm64/</td>
+<td>1</td>
+<td>9</td>
+<td>0</td>
+</tr>
+<tr>
+<td>arch/arm/mm/</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>arch/arm/include/asm/</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/virt/</td>
+<td>1</td>
+<td>11</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/networking/</td>
+<td>1</td>
+<td>13</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Documentation/arch/</td>
+<td>1</td>
+<td>28</td>
+<td>1</td>
+</tr>
+<tr>
+<td>(root)</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>arch/x86/{kernel/sev.c => coco/</td>
+<td>1</td>
+<td>448</td>
+<td>76</td>
+</tr>
+<tr>
+<td>arch/x86/{kernel/sev-shared.c => coco/</td>
+<td>1</td>
+<td>453</td>
+<td>7</td>
+</tr>
+</tbody></table>
+</body></html>
