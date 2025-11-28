@@ -82,8 +82,9 @@ jobs:
           
           echo "Running comparisons for $CONFIG_COUNT configurations..."
           
-          # Create output directory
+          # Create output directories
           mkdir -p results
+          mkdir -p results/markdown
           
           # Run comparison for each config
           for i in $(seq 0 $((CONFIG_COUNT - 1))); do
@@ -99,7 +100,7 @@ jobs:
             echo "  Branch: $BRANCH"
             echo "  Version: $VERSION"
             
-            # Run comparison and save to individual file
+            # Run comparison and save CSV for summary table
             ./compare-ubuntu-kernel.sh -f csv "$GIT_URL" "$BRANCH" "$VERSION" > "results/result_${i}.csv" 2>&1 || {
               echo "Warning: Comparison failed for configuration: $NAME"
               echo "$NAME,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR,ERROR" > "results/result_${i}.csv"
@@ -107,6 +108,15 @@ jobs:
             
             # Add name column to CSV
             tail -n 1 "results/result_${i}.csv" | awk -v name="$NAME" 'BEGIN{FS=","; OFS=","} {print name,$0}' > "results/result_${i}_named.csv"
+            
+            # Also generate markdown for detailed pages
+            ./compare-ubuntu-kernel.sh -f markdown "$GIT_URL" "$BRANCH" "$VERSION" > "results/markdown/result_${i}.md" 2>&1 || {
+              echo "Warning: Markdown generation failed for configuration: $NAME"
+              echo "# Error generating report for $NAME" > "results/markdown/result_${i}.md"
+            }
+            
+            # Save config name for later use
+            echo "$NAME" > "results/result_${i}_name.txt"
             
             # Clean up work directory
             rm -rf work_dir
@@ -135,16 +145,25 @@ jobs:
           EOF
             
             # Process each result in numeric order
-            for result_file in $(ls results/result_*_named.csv | sort -V); do
+            for i in $(seq 0 $(( $(ls results/result_*_named.csv | wc -l) - 1 ))); do
+              result_file="results/result_${i}_named.csv"
               if [ -f "$result_file" ]; then
-                # Convert CSV to markdown table row
-                awk 'BEGIN{FS=","; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7, $8, $9 " |"}' "$result_file" >> combined-results.md
+                # Get the name for the hyperlink
+                NAME=$(head -n 1 "results/result_${i}_name.txt" 2>/dev/null || echo "Config $i")
+                # Convert CSV to markdown table row with hyperlink
+                awk -v name="$NAME" -v idx="$i" 'BEGIN{FS=","; OFS=" | "} {
+                  # Make configuration name a link to detail page
+                  config_link = "[" name "](details/config_" idx ".html)"
+                  print "| " config_link, $2, $3, $4, $5, $6, $7, $8, $9 " |"
+                }' "$result_file" >> combined-results.md
               fi
             done
             
             echo "" >> combined-results.md
             echo "---" >> combined-results.md
             echo "*Report generated on $GENERATION_DATE*" >> combined-results.md
+            echo "" >> combined-results.md
+            echo "Click on any configuration name to see detailed per-folder breakdown." >> combined-results.md
             
             cat combined-results.md
             
@@ -177,8 +196,139 @@ jobs:
       - name: Publish to GitHub Pages
         if: ${{ github.event.inputs.publish_to_pages == 'true' }}
         run: |
-          # Create a simple HTML page for GitHub Pages
+          # Create directories for GitHub Pages
           mkdir -p gh-pages
+          mkdir -p gh-pages/details
+          
+          # Generate detail pages for each configuration
+          for i in $(seq 0 $(( $(ls results/markdown/result_*.md 2>/dev/null | wc -l) - 1 ))); do
+            if [ -f "results/markdown/result_${i}.md" ]; then
+              NAME=$(head -n 1 "results/result_${i}_name.txt" 2>/dev/null || echo "Configuration $i")
+              echo "Generating detail page for: $NAME"
+              
+              # Convert markdown to HTML
+              cat > "gh-pages/details/config_${i}.html" << 'DETAILHTMLEOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>TITLEPLACEHOLDER</title>
+              <style>
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                      max-width: 1400px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      line-height: 1.6;
+                      color: #333;
+                  }
+                  h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                  h2 { color: #34495e; margin-top: 30px; }
+                  h3 { color: #555; margin-top: 20px; }
+                  table {
+                      width: 100%;
+                      border-collapse: collapse;
+                      margin: 20px 0;
+                      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+                  }
+                  th {
+                      background-color: #3498db;
+                      color: white;
+                      padding: 12px;
+                      text-align: left;
+                      font-weight: 600;
+                  }
+                  td {
+                      padding: 10px 12px;
+                      border-bottom: 1px solid #ddd;
+                  }
+                  tr:hover { background-color: #f5f5f5; }
+                  .nav-link {
+                      display: inline-block;
+                      margin-bottom: 20px;
+                      color: #3498db;
+                      text-decoration: none;
+                      font-weight: 600;
+                  }
+                  .nav-link:hover { text-decoration: underline; }
+                  code {
+                      background-color: #f4f4f4;
+                      padding: 2px 6px;
+                      border-radius: 3px;
+                      font-family: 'Courier New', monospace;
+                  }
+                  ul { list-style-position: inside; }
+              </style>
+          </head>
+          <body>
+              <a href="../index.html" class="nav-link">← Back to Summary</a>
+          DETAILHTMLEOF
+              
+              # Convert the markdown file to HTML
+              awk '
+                BEGIN { in_table = 0; in_list = 0; is_header = 0 }
+                /^# / { print "<h1>" substr($0, 3) "</h1>"; next }
+                /^## / { print "<h2>" substr($0, 4) "</h2>"; next }
+                /^### / { print "<h3>" substr($0, 5) "</h3>"; next }
+                /^\*\*[^:]+:\*\*/ {
+                  match($0, /^\*\*([^:]+):\*\* (.+)/, arr)
+                  print "<p><strong>" arr[1] ":</strong> " arr[2] "</p>"
+                  next
+                }
+                /^- / { 
+                  if (!in_list) { print "<ul>"; in_list = 1 }
+                  print "<li>" substr($0, 3) "</li>"
+                  next
+                }
+                /^\| [^-]/ {
+                  if (!in_table) {
+                    in_table = 1
+                    is_header = 1
+                    print "<table>"
+                  }
+                  gsub(/^\| /, "")
+                  gsub(/ \|$/, "")
+                  if (is_header) {
+                    print "<thead><tr>"
+                    n = split($0, headers, / \| /)
+                    for (i = 1; i <= n; i++) print "<th>" headers[i] "</th>"
+                    print "</tr></thead><tbody>"
+                    is_header = 0
+                  } else {
+                    print "<tr>"
+                    n = split($0, cells, / \| /)
+                    for (i = 1; i <= n; i++) print "<td>" cells[i] "</td>"
+                    print "</tr>"
+                  }
+                  next
+                }
+                /^\|---/ { next }
+                /^\*\*Raw diff stats\*\*:/ {
+                  match($0, /\*\*Raw diff stats\*\*: (.+)/, arr)
+                  print "<p><strong>Raw diff stats:</strong> " arr[1] "</p>"
+                  next
+                }
+                /^$/ {
+                  if (in_table) { print "</tbody></table>"; in_table = 0 }
+                  if (in_list) { print "</ul>"; in_list = 0 }
+                  next
+                }
+                { 
+                  if (in_table || in_list) next
+                  if (!/^$/) print "<p>" $0 "</p>" 
+                }
+                END {
+                  if (in_table) print "</tbody></table>"
+                  if (in_list) print "</ul>"
+                  print "</body></html>"
+                }
+              ' "results/markdown/result_${i}.md" >> "gh-pages/details/config_${i}.html"
+              
+              # Replace title placeholder
+              sed -i "s/TITLEPLACEHOLDER/$NAME - Detailed Report/" "gh-pages/details/config_${i}.html"
+            fi
+          done
           
           # Copy markdown as index
           if [ -f combined-results.md ]; then
@@ -226,6 +376,8 @@ jobs:
                       color: #7f8c8d;
                       font-size: 0.9em;
                   }
+                  a { color: #3498db; text-decoration: none; }
+                  a:hover { text-decoration: underline; }
               </style>
           </head>
           <body>
@@ -243,8 +395,8 @@ jobs:
                 print "<thead><tr>"
                 gsub(/^\| /, "")
                 gsub(/ \|$/, "")
-                split($0, headers, " \\| ")
-                for (i in headers) print "<th>" headers[i] "</th>"
+                n = split($0, headers, " \\| ")
+                for (i = 1; i <= n; i++) print "<th>" headers[i] "</th>"
                 print "</tr></thead><tbody>"
                 next
               }
@@ -253,8 +405,17 @@ jobs:
                 print "<tr>"
                 gsub(/^\| /, "")
                 gsub(/ \|$/, "")
-                split($0, cells, " \\| ")
-                for (i in cells) print "<td>" cells[i] "</td>"
+                # Handle markdown links in the first column
+                line = $0
+                n = split(line, cells, " \\| ")
+                for (i = 1; i <= n; i++) {
+                  cell = cells[i]
+                  # Convert markdown link to HTML link
+                  if (match(cell, /\[([^\]]+)\]\(([^)]+)\)/, arr)) {
+                    cell = "<a href=\"" arr[2] "\">" arr[1] "</a>"
+                  }
+                  print "<td>" cell "</td>"
+                }
                 print "</tr>"
                 next
               }

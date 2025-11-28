@@ -8,6 +8,11 @@ Utility tools for comparing Ubuntu kernel derivatives.
 
 A script to compare Ubuntu kernel derivatives against their base Ubuntu kernel version.
 
+This tool provides:
+- Overall commit count and diff statistics
+- **Per-folder breakdown** showing which directories have the most changes (e.g., drivers/, Documentation/, arch/)
+- Multiple output formats for different use cases
+
 **Usage:**
 ```bash
 ./compare-ubuntu-kernel.sh [OPTIONS] <Ubuntu source tree> <git branch> <Ubuntu kernel version>
@@ -19,15 +24,29 @@ A script to compare Ubuntu kernel derivatives against their base Ubuntu kernel v
 
 **Examples:**
 ```bash
-# Text format (default)
+# Text format (default) - includes per-folder breakdown
 ./compare-ubuntu-kernel.sh https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble master-next 6.8.0-1017.18
 
-# CSV format for easy parsing
+# CSV format for easy parsing - includes per-folder data
 ./compare-ubuntu-kernel.sh -f csv https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble master-next 6.8.0-1017.18
 
-# Markdown format for reports
+# Markdown format for reports - includes per-folder table
 ./compare-ubuntu-kernel.sh -f markdown https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux-raspi/+git/noble master-next 6.8.0-1017.18
 ```
+
+**Output Features:**
+
+The script now provides detailed per-folder analysis to help understand where changes are concentrated:
+
+- **Overall statistics**: Total files changed, insertions, and deletions
+- **Per-folder breakdown**: Shows changes grouped by top-level directory (e.g., drivers/, arch/, Documentation/)
+  - Provides a high-level overview of which subsystems are affected
+  - Sorted by number of files changed (most active directories first)
+- **Detailed per-folder breakdown**: Shows subdirectory-level changes
+  - 2 levels deep for most directories (e.g., drivers/net/, drivers/usb/)
+  - 4 levels deep for arch/ directory (e.g., arch/arm64/boot/dts/)
+  - Helps identify specific subsystems and hardware support changes
+  - Available in all output formats (text, JSON, CSV, markdown)
 
 ## GitHub Workflows
 
