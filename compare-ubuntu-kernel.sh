@@ -72,8 +72,9 @@ DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' 
 
 # Collect commits per kernel release
 RELEASE_COMMITS=$(git log --oneline --grep="UBUNTU: Ubuntu-" "$SHA".."$BRANCH" | awk '{
-    # Extract the commit message starting after the hash
-    msg = substr($0, index($0, $2))
+    # Skip the commit hash (first field) and get the full message
+    msg = $0
+    sub(/^[0-9a-f]+ /, "", msg)
     # Try to extract version pattern like "Ubuntu-qcom-6.8.0-1063.64" or "Ubuntu-6.8.0-1063.64"
     if (match(msg, /UBUNTU: Ubuntu-[a-zA-Z0-9._-]+/)) {
         release = substr(msg, RSTART + 8, RLENGTH - 8)  # Skip "UBUNTU: " prefix
@@ -225,9 +226,9 @@ EOF
         
         # Build commits per release JSON array
         if [ -n "$RELEASE_COMMITS" ]; then
-            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; first=1} {
-                if (!first) printf ","
-                first=0
+            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; first=0} {
+                if (first) printf ","
+                first=1
                 # Escape special characters for JSON
                 release = $1
                 gsub(/\\/, "\\\\", release)
