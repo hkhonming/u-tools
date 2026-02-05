@@ -100,6 +100,7 @@ END {
     prev_sha = base_sha
     for (i = 1; i <= count; i++) {
         # Validate SHA format (40 hex characters) to prevent command injection
+        # Silently skip invalid SHAs as they indicate data extraction issues
         if (prev_sha !~ /^[0-9a-f]{40}$/ || shas[i] !~ /^[0-9a-f]{40}$/) {
             continue
         }
