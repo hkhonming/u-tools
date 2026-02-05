@@ -71,11 +71,11 @@ INSERTIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+
 DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
 
 # Collect commits per kernel release
-# First, get all release commits with their SHAs in reverse chronological order (newest first)
-RELEASE_SHAS=$(git log --reverse --grep="UBUNTU: Ubuntu-" --format="%H %s" "$SHA".."$BRANCH")
+# Get all release commits with their SHAs and messages in chronological order
+RELEASE_DATA=$(git log --reverse --grep="UBUNTU: Ubuntu-" --format="%H %s" "$SHA".."$BRANCH")
 
 # Now count commits between consecutive releases
-RELEASE_COMMITS=$(echo "$RELEASE_SHAS" | awk -v base_sha="$SHA" '{
+RELEASE_COMMITS=$(echo "$RELEASE_DATA" | awk -v base_sha="$SHA" '{
     # Extract commit SHA and message
     sha = $1
     msg = substr($0, index($0, $2))
@@ -99,6 +99,10 @@ END {
     # Count commits between base and first release, then between each consecutive release
     prev_sha = base_sha
     for (i = 1; i <= count; i++) {
+        # Validate SHA format (40 hex characters) to prevent command injection
+        if (prev_sha !~ /^[0-9a-f]{40}$/ || shas[i] !~ /^[0-9a-f]{40}$/) {
+            continue
+        }
         # Count commits from previous release to current release (inclusive of current)
         cmd = "git rev-list --count " prev_sha ".." shas[i]
         cmd | getline commit_count
