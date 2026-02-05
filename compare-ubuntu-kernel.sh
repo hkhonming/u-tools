@@ -75,9 +75,14 @@ RELEASE_COMMITS=$(git log --oneline --grep="UBUNTU: Ubuntu-" "$SHA".."$BRANCH" |
     # Skip the commit hash (first field) and get the full message
     msg = $0
     sub(/^[0-9a-f]+ /, "", msg)
-    # Try to extract version pattern like "Ubuntu-qcom-6.8.0-1063.64" or "Ubuntu-6.8.0-1063.64"
-    if (match(msg, /UBUNTU: Ubuntu-[a-zA-Z0-9._-]+/)) {
-        release = substr(msg, RSTART + 8, RLENGTH - 8)  # Skip "UBUNTU: " prefix
+    # Extract the release identifier from "UBUNTU: Ubuntu-<release>"
+    if (match(msg, /UBUNTU: (Ubuntu-[a-zA-Z0-9._-]+)/, arr)) {
+        # Use capture group to get just the Ubuntu-* part
+        release = arr[1]
+        releases[release]++
+    } else if (match(msg, /UBUNTU: Ubuntu-[a-zA-Z0-9._-]+/)) {
+        # Fallback for awk versions without capture groups
+        release = substr(msg, RSTART + 8, RLENGTH - 8)
         releases[release]++
     }
 }
@@ -177,7 +182,7 @@ case $FORMAT in
         echo "### Commits per kernel release ###"
         if [ -n "$RELEASE_COMMITS" ]; then
             printf "%-60s %10s\n" "Release" "Commits"
-            printf "%-60s %10s\n" "------------------------------------------------------------" "----------"
+            printf '%*s\n' 72 | tr ' ' '-'
             echo "$RELEASE_COMMITS" | while IFS=$'\t' read -r release count; do
                 printf "%-60s %10d\n" "$release" "$count"
             done
