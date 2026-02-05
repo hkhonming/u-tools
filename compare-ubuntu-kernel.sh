@@ -182,7 +182,8 @@ case $FORMAT in
         echo "### Commits per kernel release ###"
         if [ -n "$RELEASE_COMMITS" ]; then
             printf "%-60s %10s\n" "Release" "Commits"
-            printf '%*s\n' 72 | tr ' ' '-'
+            # Generate separator: 60 (release col) + 1 (space) + 10 (commits col) + 1 (newline space) = 72
+            printf '%*s\n' 71 | tr ' ' '-'
             echo "$RELEASE_COMMITS" | while IFS=$'\t' read -r release count; do
                 printf "%-60s %10d\n" "$release" "$count"
             done
