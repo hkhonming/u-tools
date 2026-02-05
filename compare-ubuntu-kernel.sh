@@ -70,6 +70,22 @@ FILES_CHANGED=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ file' | grep -o '[0-9]\+' 
 INSERTIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+' || echo "0")
 DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
 
+# Collect commits per kernel release
+RELEASE_COMMITS=$(git log --oneline --grep="UBUNTU: Ubuntu-" "$SHA".."$BRANCH" | awk '{
+    # Extract the commit message starting after the hash
+    msg = substr($0, index($0, $2))
+    # Try to extract version pattern like "Ubuntu-qcom-6.8.0-1063.64" or "Ubuntu-6.8.0-1063.64"
+    if (match(msg, /UBUNTU: Ubuntu-[a-zA-Z0-9._-]+/)) {
+        release = substr(msg, RSTART + 8, RLENGTH - 8)  # Skip "UBUNTU: " prefix
+        releases[release]++
+    }
+}
+END {
+    for (release in releases) {
+        printf "%s\t%d\n", release, releases[release]
+    }
+}' | sort -t$'\t' -k2 -rn)
+
 # Collect per-folder statistics (top-level only)
 FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
     if ($1 == "-" || $2 == "-") {
@@ -157,6 +173,17 @@ case $FORMAT in
         echo "### Differences on top of generic Ubuntu ###"
         echo "$DIFF_STATS"
         echo ""
+        echo "### Commits per kernel release ###"
+        if [ -n "$RELEASE_COMMITS" ]; then
+            printf "%-60s %10s\n" "Release" "Commits"
+            printf "%-60s %10s\n" "------------------------------------------------------------" "----------"
+            echo "$RELEASE_COMMITS" | while IFS=$'\t' read -r release count; do
+                printf "%-60s %10d\n" "$release" "$count"
+            done
+        else
+            echo "No kernel release commits found."
+        fi
+        echo ""
         echo "### Per-folder breakdown ###"
         if [ -n "$FOLDER_STATS" ]; then
             printf "%-40s %10s %10s %10s\n" "Directory" "Files" "Insertions" "Deletions"
@@ -193,6 +220,28 @@ case $FORMAT in
     "deletions": $DELETIONS,
     "raw": "$DIFF_STATS"
   },
+  "commits_per_release": [
+EOF
+        
+        # Build commits per release JSON array
+        if [ -n "$RELEASE_COMMITS" ]; then
+            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; first=1} {
+                if (!first) printf ","
+                first=0
+                # Escape special characters for JSON
+                release = $1
+                gsub(/\\/, "\\\\", release)
+                gsub(/"/, "\\\"", release)
+                gsub(/\n/, "\\n", release)
+                gsub(/\r/, "\\r", release)
+                gsub(/\t/, "\\t", release)
+                printf "\n    {\"release\": \"%s\", \"commits\": %d}", release, $2
+            }
+            END { printf "\n" }'
+        fi
+        
+        cat << EOF
+  ],
   "per_folder_stats": [
 EOF
         
@@ -241,6 +290,12 @@ EOF
 EOF
         ;;
     csv)
+        if [ -n "$RELEASE_COMMITS" ]; then
+            echo "# Commits per kernel release"
+            echo "release,commits"
+            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; OFS=","} {print $1, $2}'
+            echo ""
+        fi
         if [ -n "$FOLDER_STATS" ]; then
             echo "# Per-folder breakdown"
             echo "directory,files,insertions,deletions"
@@ -279,6 +334,22 @@ $COMMIT_COUNT commits
 | Deletions | $DELETIONS |
 
 **Raw diff stats**: $DIFF_STATS
+
+### Commits per Kernel Release
+EOF
+        if [ -n "$RELEASE_COMMITS" ]; then
+            echo ""
+            echo "| Release | Commits |"
+            echo "|---------|---------|"
+            echo "$RELEASE_COMMITS" | while IFS=$'\t' read -r release count; do
+                echo "| $release | $count |"
+            done
+        else
+            echo ""
+            echo "No kernel release commits found."
+        fi
+        
+        cat << EOF
 
 ### Per-folder Breakdown
 EOF
