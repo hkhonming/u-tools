@@ -71,24 +71,42 @@ INSERTIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ insertion' | grep -o '[0-9]\+
 DELETIONS=$(echo "$DIFF_STATS" | grep -o '[0-9]\+ deletion' | grep -o '[0-9]\+' || echo "0")
 
 # Collect commits per kernel release
-RELEASE_COMMITS=$(git log --oneline --grep="UBUNTU: Ubuntu-" "$SHA".."$BRANCH" | awk '{
-    # Skip the commit hash (first field) and get the full message
-    msg = $0
-    sub(/^[0-9a-f]+ /, "", msg)
+# First, get all release commits with their SHAs in reverse chronological order (newest first)
+RELEASE_SHAS=$(git log --reverse --grep="UBUNTU: Ubuntu-" --format="%H %s" "$SHA".."$BRANCH")
+
+# Now count commits between consecutive releases
+RELEASE_COMMITS=$(echo "$RELEASE_SHAS" | awk -v base_sha="$SHA" '{
+    # Extract commit SHA and message
+    sha = $1
+    msg = substr($0, index($0, $2))
+    
     # Extract the release identifier from "UBUNTU: Ubuntu-<release>"
+    release = ""
     if (match(msg, /UBUNTU: (Ubuntu-[a-zA-Z0-9._-]+)/, arr)) {
-        # Use capture group to get just the Ubuntu-* part
         release = arr[1]
-        releases[release]++
     } else if (match(msg, /UBUNTU: Ubuntu-[a-zA-Z0-9._-]+/)) {
-        # Fallback for awk versions without capture groups
         release = substr(msg, RSTART + 8, RLENGTH - 8)
-        releases[release]++
+    }
+    
+    if (release != "") {
+        # Store each release SHA and name
+        shas[NR] = sha
+        releases[NR] = release
+        count = NR
     }
 }
 END {
-    for (release in releases) {
-        printf "%s\t%d\n", release, releases[release]
+    # Count commits between base and first release, then between each consecutive release
+    prev_sha = base_sha
+    for (i = 1; i <= count; i++) {
+        # Count commits from previous release to current release (inclusive of current)
+        cmd = "git rev-list --count " prev_sha ".." shas[i]
+        cmd | getline commit_count
+        close(cmd)
+        if (commit_count > 0) {
+            printf "%s\t%d\n", releases[i], commit_count
+        }
+        prev_sha = shas[i]
     }
 }' | sort -t$'\t' -k2 -rn)
 
