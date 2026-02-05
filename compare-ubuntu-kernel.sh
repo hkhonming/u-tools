@@ -226,9 +226,9 @@ EOF
         
         # Build commits per release JSON array
         if [ -n "$RELEASE_COMMITS" ]; then
-            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; first=0} {
-                if (first) printf ","
-                first=1
+            echo "$RELEASE_COMMITS" | awk 'BEGIN {FS="\t"; first=1} {
+                if (!first) printf ","
+                first=0
                 # Escape special characters for JSON
                 release = $1
                 gsub(/\\/, "\\\\", release)
