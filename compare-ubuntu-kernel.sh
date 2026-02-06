@@ -113,7 +113,7 @@ END {
         }
         prev_sha = shas[i]
     }
-}' | sort -t$'\t' -k2 -rn)
+}' | tac)
 
 # Collect per-folder statistics (top-level only)
 FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
