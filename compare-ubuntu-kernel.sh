@@ -113,7 +113,7 @@ END {
         }
         prev_sha = shas[i]
     }
-}' | tac)
+}' | tac)  # Reverse to show newest releases first (depends on git log --reverse at line 75)
 
 # Collect per-folder statistics (top-level only)
 FOLDER_STATS=$(git diff --numstat "$SHA".."$BRANCH" | awk 'BEGIN {FS="\t"} {
