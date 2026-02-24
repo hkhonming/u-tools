@@ -1,0 +1,29 @@
+{
+  "filters": [
+    {
+      "name": "ARM64 architecture changes",
+      "type": "folder",
+      "paths": ["arch/arm64/"]
+    },
+    {
+      "name": "Network subsystem changes",
+      "type": "folder",
+      "paths": ["net/", "drivers/net/"]
+    },
+    {
+      "name": "Security and CVE fixes",
+      "type": "commit_message",
+      "patterns": ["CVE-", "security fix", "vulnerability", "overflow"]
+    },
+    {
+      "name": "Driver changes",
+      "type": "folder",
+      "paths": ["drivers/"]
+    },
+    {
+      "name": "Stable backport commits",
+      "type": "commit_message",
+      "patterns": ["stable@", "Fixes:"]
+    }
+  ]
+}

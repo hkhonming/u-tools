@@ -1,0 +1,174 @@
+name: Track Upstream Linux Kernel RC
+
+on:
+  schedule:
+    # Run every Monday at 06:00 UTC to catch weekend RC releases
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      kernel_repo:
+        description: 'Upstream Linux kernel Git URL'
+        required: false
+        type: string
+        default: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+      from_tag:
+        description: 'Base tag to compare from (e.g. v6.15-rc1). Leave empty to auto-detect previous RC.'
+        required: false
+        type: string
+      to_tag:
+        description: 'Target RC tag to compare to (e.g. v6.15-rc2). Leave empty to auto-detect latest RC.'
+        required: false
+        type: string
+      config_url:
+        description: 'URL to a JSON filter config file (optional – uses upstream-kernel-config.json if not provided)'
+        required: false
+        type: string
+      format:
+        description: 'Output format'
+        required: false
+        type: choice
+        options:
+          - markdown
+          - json
+          - text
+        default: markdown
+
+jobs:
+  track_kernel_rc:
+    name: Track Upstream Kernel RC Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Config File
+        id: config
+        run: |
+          CONFIG_FILE="upstream-kernel-config.json"
+
+          if [ -n "${{ github.event.inputs.config_url }}" ]; then
+            # Only allow https:// URLs to reduce the attack surface
+            if [[ ! "${{ github.event.inputs.config_url }}" =~ ^https:// ]]; then
+              echo "Error: config_url must start with https://" >&2
+              exit 1
+            fi
+            echo "Downloading config from: ${{ github.event.inputs.config_url }}"
+            wget -O downloaded-config.json "${{ github.event.inputs.config_url }}"
+            CONFIG_FILE="downloaded-config.json"
+          fi
+
+          # Validate JSON
+          if ! jq empty "$CONFIG_FILE" 2>/dev/null; then
+            echo "Error: Invalid JSON in config file" >&2
+            exit 1
+          fi
+
+          echo "config_file=$CONFIG_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Kernel Tags and Resolve RC Tags
+        id: tags
+        env:
+          KERNEL_REPO: ${{ github.event.inputs.kernel_repo || 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git' }}
+          INPUT_FROM_TAG: ${{ github.event.inputs.from_tag }}
+          INPUT_TO_TAG: ${{ github.event.inputs.to_tag }}
+        run: |
+          echo "Fetching tag list from kernel repo..."
+          # Only fetch tag names – no objects yet; this is fast
+          ALL_TAGS=$(git ls-remote --tags "$KERNEL_REPO" 'refs/tags/v*-rc*' \
+            | awk '{print $2}' \
+            | sed 's|refs/tags/||' \
+            | grep -E '^v[0-9]+\.[0-9]+-rc[0-9]+$' \
+            | sort -V)
+
+          echo "Available RC tags (last 10):"
+          echo "$ALL_TAGS" | tail -10
+
+          if [ -n "$INPUT_TO_TAG" ]; then
+            TO_TAG="$INPUT_TO_TAG"
+          else
+            TO_TAG=$(echo "$ALL_TAGS" | tail -1)
+          fi
+
+          if [ -n "$INPUT_FROM_TAG" ]; then
+            FROM_TAG="$INPUT_FROM_TAG"
+          else
+            # Pick the tag immediately before TO_TAG in the sorted list
+            FROM_TAG=$(echo "$ALL_TAGS" | grep -B1 "^${TO_TAG}$" | head -1)
+            # If no previous RC found (e.g. rc1), use the base release tag
+            if [ -z "$FROM_TAG" ] || [ "$FROM_TAG" = "$TO_TAG" ]; then
+              BASE=$(echo "$TO_TAG" | sed 's/-rc[0-9]*//')
+              FROM_TAG="$BASE"
+            fi
+          fi
+
+          echo "from_tag=$FROM_TAG"  >> "$GITHUB_OUTPUT"
+          echo "to_tag=$TO_TAG"      >> "$GITHUB_OUTPUT"
+          echo "kernel_repo=$KERNEL_REPO" >> "$GITHUB_OUTPUT"
+
+      - name: Run RC Tracker
+        id: tracker
+        env:
+          FORMAT: ${{ github.event.inputs.format || 'markdown' }}
+        run: |
+          FROM_TAG="${{ steps.tags.outputs.from_tag }}"
+          TO_TAG="${{ steps.tags.outputs.to_tag }}"
+          KERNEL_REPO="${{ steps.tags.outputs.kernel_repo }}"
+          CONFIG_FILE="${{ steps.config.outputs.config_file }}"
+
+          echo "Comparing $FROM_TAG → $TO_TAG"
+          echo "Config   : $CONFIG_FILE"
+          echo "Format   : $FORMAT"
+
+          case "$FORMAT" in
+            json)     EXT="json" ;;
+            markdown) EXT="md"   ;;
+            *)        EXT="txt"  ;;
+          esac
+
+          # Sanitize tag values for use in a filename (keep only safe chars)
+          SAFE_FROM=$(echo "$FROM_TAG" | tr -cd 'a-zA-Z0-9._-')
+          SAFE_TO=$(echo "$TO_TAG" | tr -cd 'a-zA-Z0-9._-')
+          OUTPUT_FILE="upstream-kernel-rc-${SAFE_FROM}-to-${SAFE_TO}.${EXT}"
+
+          ./track-upstream-kernel.sh \
+            -f "$FORMAT" \
+            -c "$CONFIG_FILE" \
+            "$KERNEL_REPO" \
+            "$FROM_TAG" \
+            "$TO_TAG" | tee "$OUTPUT_FILE"
+
+          echo "output_file=$OUTPUT_FILE" >> "$GITHUB_OUTPUT"
+
+          # Clean up cloned repo to free disk space
+          rm -rf upstream_work_dir
+
+      - name: Upload RC Tracker Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-kernel-rc-report
+          path: ${{ steps.tracker.outputs.output_file }}
+          retention-days: 30
+
+      - name: Print Summary
+        env:
+          FORMAT: ${{ github.event.inputs.format || 'markdown' }}
+        run: |
+          FROM_TAG="${{ steps.tags.outputs.from_tag }}"
+          TO_TAG="${{ steps.tags.outputs.to_tag }}"
+          OUTPUT_FILE="${{ steps.tracker.outputs.output_file }}"
+
+          echo "## Upstream Linux Kernel RC Tracker Summary"
+          echo ""
+          echo "Compared **$FROM_TAG** → **$TO_TAG**"
+          echo ""
+
+          if [ "$FORMAT" = "markdown" ] && [ -f "$OUTPUT_FILE" ]; then
+            cat "$OUTPUT_FILE"
+          elif [ -f "$OUTPUT_FILE" ]; then
+            echo "\`\`\`"
+            cat "$OUTPUT_FILE"
+            echo "\`\`\`"
+          fi
