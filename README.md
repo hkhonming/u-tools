@@ -48,7 +48,90 @@ The script now provides detailed per-folder analysis to help understand where ch
   - Helps identify specific subsystems and hardware support changes
   - Available in all output formats (text, JSON, CSV, markdown)
 
+### track-upstream-kernel.sh
+
+A script to track changes between upstream Linux kernel RC releases, filtered by
+folder paths or commit-message patterns defined in a JSON config file.
+
+**Usage:**
+```bash
+./track-upstream-kernel.sh [OPTIONS] <kernel_repo> <from_tag> <to_tag>
+```
+
+**Options:**
+- `-c, --config <file>`: JSON config file with folder/commit-message filters (optional)
+- `-f, --format <format>`: Output format (text, json, markdown). Default: text
+- `-h, --help`: Show help message
+
+**Examples:**
+```bash
+# Compare v6.15-rc1 → v6.15-rc2, filter by config, output markdown
+./track-upstream-kernel.sh \
+  -f markdown \
+  -c upstream-kernel-config.json \
+  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git \
+  v6.15-rc1 v6.15-rc2
+
+# No filter config – show overall stats only
+./track-upstream-kernel.sh \
+  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git \
+  v6.15-rc1 v6.15-rc2
+```
+
+**Config File Format (`upstream-kernel-config.json`):**
+
+```json
+{
+  "filters": [
+    {
+      "name": "ARM64 architecture changes",
+      "type": "folder",
+      "paths": ["arch/arm64/"]
+    },
+    {
+      "name": "Security and CVE fixes",
+      "type": "commit_message",
+      "patterns": ["CVE-", "security fix", "vulnerability"]
+    }
+  ]
+}
+```
+
+Each filter entry requires:
+- `name`: Human-readable label shown in the report
+- `type`: Either `"folder"` or `"commit_message"`
+- `paths` *(folder type)*: List of directory prefixes to include in the diff
+- `patterns` *(commit_message type)*: List of strings to match against commit subjects/bodies
+
 ## GitHub Workflows
+
+### Track Upstream Linux Kernel RC
+
+**Workflow:** `.github/workflows/track-upstream-kernel.yaml`
+
+Monitor upstream Linux kernel RC releases and report changes that match filter
+rules defined in a JSON config file.
+
+**Schedule:** Runs automatically every Monday at 06:00 UTC.  Can also be
+triggered manually via the Actions tab.
+
+**Inputs (manual trigger):**
+- `kernel_repo`: Upstream kernel Git URL (default: torvalds/linux)
+- `from_tag`: Base tag to compare from (e.g. `v6.15-rc1`). Auto-detected when left empty.
+- `to_tag`: Target RC tag (e.g. `v6.15-rc2`). Auto-detected (latest RC) when left empty.
+- `config_url`: URL to a JSON filter config file. Uses `upstream-kernel-config.json` if not provided.
+- `format`: Output format – markdown (default), json, or text.
+
+**Auto-detection logic:**
+- `to_tag` defaults to the newest RC tag found in the kernel repo.
+- `from_tag` defaults to the RC tag immediately before `to_tag`, or the base
+  release tag (e.g. `v6.15`) if `to_tag` is `rc1`.
+
+**Output:**
+- Overall commit count and diff statistics between the two RC tags.
+- Per-filter results showing either diff stats for monitored folders or a list
+  of commits matching the provided patterns.
+- Report uploaded as a workflow artifact (30-day retention).
 
 ### Compare Ubuntu Kernel (Single)
 
