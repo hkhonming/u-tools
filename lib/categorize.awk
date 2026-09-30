@@ -59,7 +59,7 @@ FILENAME == numstat_file { n_ins[$1] = $2; n_del[$1] = $3; next }
         }
     }
 
-    sub = ""
+    subcat = ""
     if (par ~ / /) {
         cat = "Merge"                       # merge commit (multiple parents)
     } else if (index(subj2, "Revert \"") == 1) {
@@ -73,8 +73,8 @@ FILENAME == numstat_file { n_ins[$1] = $2; n_del[$1] = $3; next }
                 a_count[i]++
             }
         }
-        sub = cat_of(inner, body)
-        if (sub == "") sub = "Uncategorized"
+        subcat = cat_of(inner, body)
+        if (subcat == "") subcat = "Uncategorized"
     } else {
         cat = cat_of(subj2, body)
         if (cat == "") {
@@ -92,10 +92,10 @@ FILENAME == numstat_file { n_ins[$1] = $2; n_del[$1] = $3; next }
     # For upstream-tagged commits, verify the referenced sha (if requested)
     if (upstream_ref != "" && (cat == "FROMGIT" || cat == "BACKPORT" || cat == "UPSTREAM")) {
         if (ref == "" || !(ref in m_status) || m_status[ref] != "upstream")
-            sub = "ref not found"
+            subcat = "ref not found"
     }
 
-    printf "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n", sha, cat, sub, ins, del, subj, ref, used
+    printf "%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n", sha, cat, subcat, ins, del, subj, ref, used
 }
 
 # Category for a (alias-rewritten) subject, or "" if nothing matches.

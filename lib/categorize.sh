@@ -36,7 +36,7 @@ trap 'rm -rf "$TMPDIR_C"' EXIT
 
 # --- Stream 1: sha, parents, subject, refsha (from cherry-pick/backport
 # --- trailer line), body collapsed to one line -----------------------------
-git log --format="%x1e%H%x1f%P%x1f%s%x1f%b" "$BASE..$REF" | "$AWK" -v RS="$RS_CH" -v no_merges="$NO_MERGES" '
+git log --format="%x1e%H%x1f%P%x1f%s%x1f%b" "$BASE..$REF" | $AWK -v RS="$RS_CH" -v no_merges="$NO_MERGES" '
 {
     n = split($0, f, "\037")
     if (n < 3) next
@@ -57,7 +57,7 @@ git log --format="%x1e%H%x1f%P%x1f%s%x1f%b" "$BASE..$REF" | "$AWK" -v RS="$RS_CH
 }' > "$TMPDIR_C/data"
 
 # --- Stream 2: per-commit insertions/deletions ------------------------------
-git log --numstat --format="%x1e%H" "$BASE..$REF" | "$AWK" -v RS="$RS_CH" '
+git log --numstat --format="%x1e%H" "$BASE..$REF" | $AWK -v RS="$RS_CH" '
 {
     sub(/\036/, "")
     split($0, l, "\n")
@@ -79,7 +79,7 @@ cut -d"$SEP" -f4 "$TMPDIR_C/data" | grep -v '^$' | sort -u > "$TMPDIR_C/refshas"
 if [ -s "$TMPDIR_C/refshas" ]; then
     # Batch existence check (one git invocation for all shas)
     existing=$(git cat-file --batch-check='%(objectname) %(objecttype)'         < "$TMPDIR_C/refshas" 2>/dev/null | \
-        "$AWK" '$2 == "commit" { print $1 }')
+        $AWK '$2 == "commit" { print $1 }')
     for rsha in $existing; do
         if git merge-base --is-ancestor "$rsha" "$BASE" 2>/dev/null; then
             printf '%s\tdup\n' "$rsha" >> "$TMPDIR_C/map"
@@ -94,7 +94,7 @@ fi
 # --- Categorize -------------------------------------------------------------
 ALIAS_TMP="$TMPDIR_C/aliases"
 : > "$ALIAS_TMP"
-"$AWK" -f "$SCRIPT_DIR/categorize.awk" \
+$AWK -f "$SCRIPT_DIR/categorize.awk" \
     -v config_file="$CONFIG" -v map_file="$TMPDIR_C/map" \
     -v numstat_file="$TMPDIR_C/numstat" -v upstream_ref="$UPSTREAM_REF" \
     -v alias_file="$ALIAS_TMP" \
