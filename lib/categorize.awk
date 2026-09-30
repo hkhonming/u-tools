@@ -17,8 +17,8 @@ FILENAME == config_file {
     sub(/\r$/, "", line)
     if (line ~ /^#/ || line ~ /^$/) next
     n = split(line, p, "|")
-    if (n == 2 && p[1] == "inherit_defaults" && p[2] ~ /^(yes|no)$/) {
-        inherit_defaults = (p[2] == "yes") ? 1 : 0
+    if (line ~ /^inherit_defaults=(yes|no)$/) {
+        inherit_defaults = (substr(line, 18) == "yes") ? 1 : 0
         next
     }
     if (n == 3 && p[1] == "alias" && p[2] != "" && p[3] != "") {

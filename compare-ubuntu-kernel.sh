@@ -100,6 +100,15 @@ else
     fi
 fi
 
+# Resolve config to an absolute path before changing directory
+if [ -n "$CATEGORY_CONFIG" ]; then
+    if [ ! -f "$CATEGORY_CONFIG" ]; then
+        echo "Error: --category-config file '$CATEGORY_CONFIG' not found." >&2
+        exit 1
+    fi
+    CATEGORY_CONFIG=$(cd "$(dirname "$CATEGORY_CONFIG")" && pwd)/$(basename "$CATEGORY_CONFIG")
+fi
+
 # Validate format
 case $FORMAT in
     text|json|csv|markdown)
