@@ -33,6 +33,7 @@ BASE_TAG=""
 UPSTREAM_REF=""
 NO_MERGES=0
 AWK="${AWK:-awk}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Parse options
 while [[ $# -gt 0 ]]; do
@@ -144,7 +145,7 @@ elif [ -n "$BASE_TAG" ]; then
 else
     # First commit whose subject starts with "UBUNTU: Ubuntu-<VERSION>" literally
     # (a digit must follow "Ubuntu-", so "Ubuntu-qcom-..." is excluded).
-    SHA=$(git log --format='%H %s' "$REF" | "$AWK" -v ver="$VERSION" '
+    SHA=$(git log --format='%H %s' "$REF" | $AWK -v ver="$VERSION" '
         {
             msg = substr($0, 42)
             pre = "UBUNTU: Ubuntu-" ver
@@ -293,6 +294,18 @@ json_escape() {
 }
 GIT_URL_JSON=$(json_escape "$GIT_URL")
 
+# Categorize commits on top of the base (optional)
+CATEGORY_TSV=""
+if [ "$CATEGORIZE" -eq 1 ]; then
+    if [ -n "$CATEGORY_CONFIG" ] && [ ! -f "$CATEGORY_CONFIG" ]; then
+        echo "Error: --category-config file '$CATEGORY_CONFIG' not found." >&2
+        exit 1
+    fi
+    . "$SCRIPT_DIR/lib/categorize.sh"
+    categorize_run "$SHA" "$REF" || exit 1
+    category_prepare
+fi
+
 # Output based on format
 case $FORMAT in
     text)
@@ -336,6 +349,14 @@ case $FORMAT in
             done
         else
             echo "No changes found."
+        fi
+        if [ "$CATEGORIZE" -eq 1 ]; then
+            echo ""
+            category_render_text
+            if [ "$LIST_COMMITS" -eq 1 ]; then
+                echo ""
+                category_render_commits
+            fi
         fi
         ;;
     json)
@@ -416,10 +437,20 @@ EOF
             END { printf "\n" }'
         fi
         
-        cat << EOF
+        if [ "$CATEGORIZE" -eq 1 ]; then
+            echo "  ],"
+            category_render_json
+            if [ "$LIST_COMMITS" -eq 1 ]; then
+                echo ","
+                category_render_commits_json
+            fi
+            echo "}"
+        else
+            cat << EOF
   ]
 }
 EOF
+        fi
         ;;
     csv)
         if [ -n "$RELEASE_COMMITS" ]; then
@@ -442,6 +473,10 @@ EOF
         fi
         echo "git_url,branch,base_version,base_commit_sha,commits_on_top,files_changed,insertions,deletions"
         echo "$GIT_URL,$BRANCH,$VERSION,$SHA,$COMMIT_COUNT,$FILES_CHANGED,$INSERTIONS,$DELETIONS"
+        if [ "$CATEGORIZE" -eq 1 ]; then
+            echo ""
+            category_render_csv
+        fi
         ;;
     markdown)
         cat << EOF
@@ -511,6 +546,9 @@ EOF
         else
             echo ""
             echo "No changes found."
+        fi
+        if [ "$CATEGORIZE" -eq 1 ]; then
+            category_render_markdown
         fi
         ;;
 esac

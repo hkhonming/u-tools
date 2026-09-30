@@ -4,9 +4,230 @@
 #   sha<TAB>category<TAB>subcategory<TAB>insertions<TAB>deletions<TAB>subject<TAB>refsha<TAB>alias
 #
 # Usage: categorize.sh BASE REF [--config FILE] [--upstream-ref REF] [--no-merges]
-set -u
 AWK="${AWK:-awk}"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- Sourceable helpers (used by compare-ubuntu-kernel.sh) ------------------
+
+# categorize_run BASE REF
+# Runs the categorizer pipeline; sets CATEGORY_TSV (per-commit TSV) and
+# ALIAS_LINES ("from\tto\tcount" per applied alias). Returns non-zero on
+# config errors.
+categorize_run() {
+    local base="$1" ref="$2" afile rc
+    local args=("$SCRIPT_DIR/categorize.sh" "$base" "$ref")
+    [ -n "${CATEGORY_CONFIG:-}" ] && args+=(--config "$CATEGORY_CONFIG")
+    [ -n "${UPSTREAM_REF:-}" ] && args+=(--upstream-ref "$UPSTREAM_REF")
+    [ "${NO_MERGES:-0}" -eq 1 ] && args+=(--no-merges)
+    afile=$(mktemp) || return 1
+    : > "$afile"
+    CATEGORY_TSV=$(bash "${args[@]}" --alias-file "$afile")
+    rc=$?
+    if [ "$rc" -ne 0 ]; then
+        rm -f "$afile"
+        return "$rc"
+    fi
+    ALIAS_LINES=$(cat "$afile")
+    rm -f "$afile"
+    return 0
+}
+
+# category_summary_rows
+# Aggregates CATEGORY_TSV into CATEGORY_SUMMARY: one line per row, in display
+# order (categories by commit count desc, sub rows after their parent,
+# Total last): "label\tcommits\tinsertions\tdeletions".
+category_summary_rows() {
+    CATEGORY_SUMMARY=$(printf '%s\n' "$CATEGORY_TSV" | $AWK 'BEGIN { FS = "\t" }
+{
+    cat = $2; subcat = $3; ins = $4; del = $5
+    cnt[cat]++; ci[cat] += ins; cd[cat] += del
+    total++; ti += ins; td += del
+    if (subcat != "") scnt[cat "" subcat]++
+}
+END {
+    nc = 0
+    for (c in cnt) cats[++nc] = c
+    for (i = 2; i <= nc; i++) {                 # sort by count desc
+        cv = cats[i]; j = i - 1
+        while (j >= 1 && cnt[cats[j]] < cnt[cv]) { cats[j+1] = cats[j]; j-- }
+        cats[j+1] = cv
+    }
+    for (i = 1; i <= nc; i++) {
+        c = cats[i]
+        printf "%s\t%d\t%d\t%d\n", c, cnt[c], ci[c], cd[c]
+        for (k in scnt) {
+            if (index(k, c "") != 1) continue
+            scat = substr(k, length(c) + 2)
+            if (scat == "ref not found") label = "  " c " (ref not found)"
+            else if (c == "Revert") label = "  Revert (" scat ")"
+            else label = "  " c " (" scat ")"
+            printf "%s\t%d\t\t\n", label, scnt[k]
+        }
+    }
+    printf "TOTAL\t%d\t%d\t%d\n", total, ti, td
+}')
+}
+
+# category_percent COMMITS -> percent of TOTAL_COMMITS, e.g. "42.3"
+category_percent() {
+    $AWK -v c="$1" -v t="$TOTAL_COMMITS" 'BEGIN { printf "%.1f", (t > 0) ? c * 100 / t : 0 }'
+}
+
+category_alias_lines() {
+    if [ -n "$ALIAS_LINES" ]; then
+        printf '%s\n' "$ALIAS_LINES" | while IFS="$(printf '\t')" read -r from to cnt; do
+            echo "Aliased: $from -> $to ($cnt)"
+        done
+    fi
+}
+
+# category_render_text - "Commits per category" section (text format)
+category_render_text() {
+    echo "### Commits per category ###"
+    printf "%-32s %8s %7s %12s %12s\n" "Category" "Commits" "%" "Insertions" "Deletions"
+    printf "%-32s %8s %7s %12s %12s\n" "--------------------------------" "--------" "-------" "------------" "------------"
+    printf '%s\n' "$CATEGORY_SUMMARY" | while IFS="$(printf '\t')" read -r label commits ins del; do
+        if [ "$label" = "TOTAL" ]; then
+            percent="100.0"; label="Total"
+        else
+            percent=$(category_percent "$commits")
+        fi
+        printf "%-32s %8s %7s %12s %12s\n" "$label" "$commits" "$percent" "${ins:--}" "${del:--}"
+    done
+    category_alias_lines
+}
+
+# category_render_csv
+category_render_csv() {
+    echo "# Commits per category"
+    echo "category,commits,percent,insertions,deletions"
+    printf '%s\n' "$CATEGORY_SUMMARY" | while IFS="$(printf '\t')" read -r label commits ins del; do
+        if [ "$label" = "TOTAL" ]; then
+            label="Total"; percent="100.0"
+        else
+            percent=$(category_percent "$commits")
+        fi
+        echo "$label,$commits,$percent,${ins:--},${del:--}"
+    done
+    echo ""
+    if [ -n "$ALIAS_LINES" ]; then
+        printf '%s\n' "$ALIAS_LINES" | while IFS="$(printf '\t')" read -r from to cnt; do
+            echo "# Aliased: $from -> $to ($cnt)"
+        done
+    fi
+}
+
+# category_render_markdown
+category_render_markdown() {
+    echo ""
+    echo "### Commits per Category"
+    echo ""
+    echo "| Category | Commits | % | Insertions | Deletions |"
+    echo "|----------|---------|---|------------|-----------|"
+    printf '%s\n' "$CATEGORY_SUMMARY" | while IFS="$(printf '\t')" read -r label commits ins del; do
+        if [ "$label" = "TOTAL" ]; then
+            label="Total"; percent="100.0"
+        else
+            percent=$(category_percent "$commits")
+        fi
+        echo "| $label | $commits | $percent | ${ins:--} | ${del:--} |"
+    done
+    if [ -n "$ALIAS_LINES" ]; then
+        echo ""
+        printf '%s\n' "$ALIAS_LINES" | while IFS="$(printf '\t')" read -r from to cnt; do
+            echo "Aliased: $from -> $to ($cnt)"
+        done
+    fi
+}
+
+# category_prepare - build CATEGORY_SUMMARY and set TOTAL_COMMITS
+category_prepare() {
+    category_summary_rows
+    TOTAL_COMMITS=$(printf '%s\n' "$CATEGORY_SUMMARY" | tail -n 1 | cut -f2)
+}
+
+# category_json_escape STRING - escape backslash and double quote
+category_json_escape() {
+    printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+}
+
+# category_render_json - prints "commits_per_category" and "aliases" JSON keys
+# (no trailing comma; caller prints the closing brace)
+category_render_json() {
+    printf '%s\n' "$CATEGORY_TSV" | $AWK -v total_str="" 'BEGIN { FS = "\t"; first = 1 }
+function esc(s) { gsub(/\\/, "\\\\", s); gsub(/"/, "\\\"", s); return s }
+{
+    cat = $2; subcat = $3; ins = $4; del = $5
+    cnt[cat]++; ci[cat] += ins; cd[cat] += del
+    total++
+    if (subcat != "") scnt[cat "\037" subcat]++
+}
+END {
+    nc = 0
+    for (c in cnt) cats[++nc] = c
+    for (i = 2; i <= nc; i++) {
+        cv = cats[i]; j = i - 1
+        while (j >= 1 && cnt[cats[j]] < cnt[cv]) { cats[j+1] = cats[j]; j-- }
+        cats[j+1] = cv
+    }
+    printf "  \"commits_per_category\": [\n"
+    for (i = 1; i <= nc; i++) {
+        c = cats[i]
+        if (first) first = 0; else printf ",\n"
+        pct = (total > 0) ? cnt[c] * 100 / total : 0
+        printf "    {\"category\": \"%s\", \"commits\": %d, \"percent\": %.1f, \"insertions\": %d, \"deletions\": %d, \"subcategories\": [", esc(c), cnt[c], pct, ci[c], cd[c]
+        sf = 1
+        for (k in scnt) {
+            if (index(k, c "\037") != 1) continue
+            scat = substr(k, length(c) + 2)
+            if (sf) sf = 0; else printf ", "
+            printf "{\"subcategory\": \"%s\", \"commits\": %d}", esc(scat), scnt[k]
+        }
+        printf "]}"
+    }
+    printf "\n  ],\n"
+    printf "  \"aliases\": ["
+}
+' 
+    if [ -n "$ALIAS_LINES" ]; then
+        printf '\n'
+        printf '%s\n' "$ALIAS_LINES" | $AWK 'BEGIN { FS = "\t"; first = 1 }
+function esc(s) { gsub(/\\/, "\\\\", s); gsub(/"/, "\\\"", s); return s }
+{
+    if (first) first = 0; else printf ",\n"
+    printf "    {\"from\": \"%s\", \"to\": \"%s\", \"count\": %d}", esc($1), esc($2), $3
+}
+END { printf "\n  ]" }'
+    else
+        printf ']'
+    fi
+    echo ""
+}
+
+# category_render_commits - per-commit table (short sha, category, subject)
+category_render_commits() {
+    echo "### Commits per category (individual commits) ###"
+    printf "%-10s %-24s %s\n" "Sha" "Category" "Subject"
+    printf "%-10s %-24s %s\n" "----------" "------------------------" "-------"
+    printf '%s\n' "$CATEGORY_TSV" | while IFS="$(printf '\t')" read -r sha cat subcat ins del subj ref alias; do
+        printf "%-10s %-24s %s\n" "${sha:0:8}" "$cat" "$subj"
+    done
+}
+
+# category_render_commits_json - "commits" key (needs leading comma from caller)
+category_render_commits_json() {
+    echo "  \"commits\": ["
+    printf '%s\n' "$CATEGORY_TSV" | $AWK 'BEGIN { FS = "\t"; first = 1 }
+function esc(s) { gsub(/\\/, "\\\\", s); gsub(/"/, "\\\"", s); return s }
+{
+    if (first) first = 0; else printf ",\n"
+    printf "    {\"sha\": \"%s\", \"category\": \"%s\", \"subject\": \"%s\"}", substr($1, 1, 8), esc($2), esc($6)
+}
+END { printf "\n" }'
+    echo "  ]"
+}
+
+if [ "${BASH_SOURCE[0]}" != "$0" ]; then return 0 2>/dev/null || true; fi
 
 BASE=""
 REF=""
