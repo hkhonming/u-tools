@@ -148,5 +148,11 @@
     "branch": "master-next",
     "kernel_version": "6.8",
     "name": "linux-ibm-noble"
+  },
+  {
+    "git_url": "https://git.launchpad.net/~carmel-team/ubuntu/+source/linux/+git/resolute",
+    "branch": "master-next",
+    "kernel_version": "7.0",
+    "name": "linux-qcom-resolute"
   }
 ]

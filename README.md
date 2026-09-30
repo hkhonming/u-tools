@@ -179,6 +179,79 @@ The repository includes `sample-config.json` which demonstrates a comprehensive 
 ]
 ```
 
+## Commit Categorization
+
+Use `-c/--categorize` to classify every commit on top of the base Ubuntu
+kernel. The feature lives in `lib/categorize.awk` (rules) and
+`lib/categorize.sh` (data gathering and rendering) and works with plain
+POSIX awk (`awk`, `mawk`, `busybox awk`; override via the `AWK` env var).
+
+```bash
+./compare-ubuntu-kernel.sh -f text \
+    --repo /path/to/linux-qcom -c \
+    --category-config categories/linux-qcom.conf \
+    --upstream-ref origin/master origin/master-next 7.0
+```
+
+### New options
+
+| Option | Description |
+|--------|-------------|
+| `-c`, `--categorize` | Add a "Commits per category" section to every output format |
+| `--category-config FILE` | Custom rules/aliases file (see below) |
+| `--list-commits` | With `-c`: also list each commit (short sha, category, subject) |
+| `--repo PATH` | Analyse an existing repository instead of cloning; positional args become `<git ref> <version>` |
+| `--base-sha SHA` | Skip base detection and use this commit as the base |
+| `--base-tag TAG` | Resolve TAG and use it as the base |
+| `--upstream-ref REF` | Ref containing upstream commits, used to verify `(cherry picked from commit ...)` references |
+| `--no-merges` | Exclude merge commits from the analysis |
+
+Base detection finds the first commit whose subject starts with
+`UBUNTU: Ubuntu-<version>` literally (a digit must follow `Ubuntu-`, so
+`Ubuntu-qcom-...` releases are never picked as the base). Without `-c` the
+default output is unchanged.
+
+### Built-in categories (first match wins)
+
+1. **Merge** – commit with more than one parent (skipped entirely with `--no-merges`)
+2. **Revert** – subject starts with ``Revert "``; subcategory = category of the reverted subject
+3. Custom config rules (file order)
+4. **Release** `^UBUNTU: Ubuntu-` · **Config** `^UBUNTU: [Config]` ·
+   **Packaging** `^UBUNTU: [(Packaging|Debian)]`, `^UBUNTU: Start new release`, `^UBUNTU: link-to-tracker` ·
+   **SAUCE** `^UBUNTU: SAUCE:` or `^UBUNTU: [SAUCE]` · **Ubuntu (other)** `^UBUNTU:` ·
+   **FROMLIST** `^FROMLIST:` · **FROMGIT** `^FROMGIT:` · **BACKPORT** `^BACKPORT:` · **UPSTREAM** `^UPSTREAM:`
+5. Otherwise, if the commit body has a `(cherry picked|backported) from commit <sha>` trailer:
+   **Upstream (dup of base)** (sha already in the base), **Upstream (verified)**
+   (sha reachable from `--upstream-ref`), else **Cherry-pick (unverified)**
+6. **Uncategorized**
+
+For FROMGIT/BACKPORT/UPSTREAM commits, `--upstream-ref` also adds a
+"ref not found" subcategory when the referenced sha is missing or not
+reachable from that ref.
+
+### Category config format
+
+`#` comments and blank lines are ignored; an invalid line aborts with
+`config error line N` (exit 1):
+
+```
+inherit_defaults=yes      # keep built-in rules after custom ones (default yes)
+alias|FROMLOST:|FROMLIST:  # rewrite subject prefix FROM -> TO before matching
+Name|subject|^QCLINUX:     # custom rule matching the commit subject (ERE)
+Name|body|some.*pattern    # custom rule matching the body collapsed to one line
+```
+
+See `categories/linux-qcom.conf` for a real example. Alias applications are
+counted and reported ("Aliased: A -> B (n)"). JSON output gains
+`commits_per_category` and `aliases` keys (plus `commits` with
+`--list-commits`).
+
+### Tests
+
+```bash
+tests/run-tests.sh   # builds a synthetic repo; runs under awk, mawk, busybox awk
+```
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
