@@ -13,12 +13,14 @@ REF=""
 CONFIG=""
 UPSTREAM_REF=""
 NO_MERGES=0
+ALIAS_FILE=""
 BASE_ARG="" ; REF_ARG=""
 while [ $# -gt 0 ]; do
     case $1 in
         --config) CONFIG="$2"; shift 2 ;;
         --upstream-ref) UPSTREAM_REF="$2"; shift 2 ;;
         --no-merges) NO_MERGES=1; shift ;;
+        --alias-file) ALIAS_FILE="$2"; shift 2 ;;
         *) if [ -z "$BASE_ARG" ]; then BASE_ARG="$1"; elif [ -z "$REF_ARG" ]; then REF_ARG="$1"; else echo "categorize.sh: extra arg $1" >&2; exit 1; fi; shift ;;
     esac
 done
@@ -90,7 +92,15 @@ if [ -s "$TMPDIR_C/refshas" ]; then
 fi
 
 # --- Categorize -------------------------------------------------------------
+ALIAS_TMP="$TMPDIR_C/aliases"
+: > "$ALIAS_TMP"
 "$AWK" -f "$SCRIPT_DIR/categorize.awk" \
     -v config_file="$CONFIG" -v map_file="$TMPDIR_C/map" \
     -v numstat_file="$TMPDIR_C/numstat" -v upstream_ref="$UPSTREAM_REF" \
+    -v alias_file="$ALIAS_TMP" \
     "$CONFIG" "$TMPDIR_C/map" "$TMPDIR_C/numstat" "$TMPDIR_C/data"
+rc=$?
+if [ -n "$ALIAS_FILE" ] && [ -s "$ALIAS_TMP" ]; then
+    cp "$ALIAS_TMP" "$ALIAS_FILE"
+fi
+exit $rc
