@@ -64,7 +64,7 @@ FILENAME == numstat_file { n_ins[$1] = $2; n_del[$1] = $3; next }
         cat = "Merge"                       # merge commit (multiple parents)
     } else if (index(subj2, "Revert \"") == 1) {
         cat = "Revert"
-        inner = substr(subj2, 8)
+        inner = substr(subj2, 9)
         if (substr(inner, length(inner), 1) == "\"")
             inner = substr(inner, 1, length(inner) - 1)
         for (i = 1; i <= ana; i++) {
