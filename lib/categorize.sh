@@ -49,14 +49,21 @@ END {
     for (c in cnt) cats[++nc] = c
     for (i = 2; i <= nc; i++) {                 # sort by count desc
         cv = cats[i]; j = i - 1
-        while (j >= 1 && cnt[cats[j]] < cnt[cv]) { cats[j+1] = cats[j]; j-- }
+        while (j >= 1 && (cnt[cats[j]] < cnt[cv] || (cnt[cats[j]] == cnt[cv] && cats[j] > cv))) { cats[j+1] = cats[j]; j-- }
         cats[j+1] = cv
     }
     for (i = 1; i <= nc; i++) {
         c = cats[i]
         printf "%s\t%d\t%d\t%d\n", c, cnt[c], ci[c], cd[c]
-        for (k in scnt) {
-            if (index(k, c "") != 1) continue
+        ns = 0
+        for (k in scnt) if (index(k, c "\037") == 1) subs[++ns] = k
+        for (a = 2; a <= ns; a++) {             # deterministic: count desc, name asc
+            kv = subs[a]; b = a - 1
+            while (b >= 1 && (scnt[subs[b]] < scnt[kv] || (scnt[subs[b]] == scnt[kv] && subs[b] > kv))) { subs[b+1] = subs[b]; b-- }
+            subs[b+1] = kv
+        }
+        for (a = 1; a <= ns; a++) {
+            k = subs[a]
             scat = substr(k, length(c) + 2)
             if (scat == "ref not found") label = "  " c " (ref not found)"
             else if (c == "Revert") label = "  Revert (" scat ")"
@@ -167,7 +174,7 @@ END {
     for (c in cnt) cats[++nc] = c
     for (i = 2; i <= nc; i++) {
         cv = cats[i]; j = i - 1
-        while (j >= 1 && cnt[cats[j]] < cnt[cv]) { cats[j+1] = cats[j]; j-- }
+        while (j >= 1 && (cnt[cats[j]] < cnt[cv] || (cnt[cats[j]] == cnt[cv] && cats[j] > cv))) { cats[j+1] = cats[j]; j-- }
         cats[j+1] = cv
     }
     printf "  \"commits_per_category\": [\n"
@@ -177,8 +184,15 @@ END {
         pct = (total > 0) ? cnt[c] * 100 / total : 0
         printf "    {\"category\": \"%s\", \"commits\": %d, \"percent\": %.1f, \"insertions\": %d, \"deletions\": %d, \"subcategories\": [", esc(c), cnt[c], pct, ci[c], cd[c]
         sf = 1
-        for (k in scnt) {
-            if (index(k, c "\037") != 1) continue
+        ns = 0
+        for (k in scnt) if (index(k, c "\037") == 1) subs[++ns] = k
+        for (a = 2; a <= ns; a++) {             # deterministic: count desc, name asc
+            kv = subs[a]; b = a - 1
+            while (b >= 1 && (scnt[subs[b]] < scnt[kv] || (scnt[subs[b]] == scnt[kv] && subs[b] > kv))) { subs[b+1] = subs[b]; b-- }
+            subs[b+1] = kv
+        }
+        for (a = 1; a <= ns; a++) {
+            k = subs[a]
             scat = substr(k, length(c) + 2)
             if (sf) sf = 0; else printf ", "
             printf "{\"subcategory\": \"%s\", \"commits\": %d}", esc(scat), scnt[k]

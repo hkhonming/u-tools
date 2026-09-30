@@ -319,7 +319,7 @@ fi
 case $FORMAT in
     text)
         echo "### Base Ubuntu Commit ###"
-        git log --grep "UBUNTU: Ubuntu-$VERSION" | head -n 7
+        git log -1 "$SHA" | head -n 7
         echo ""
         echo "### Commits on top of generic Ubuntu ###"
         echo "$COMMIT_COUNT"
